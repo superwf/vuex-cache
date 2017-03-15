@@ -35,9 +35,9 @@ describe('memorize vuex action', () => {
       }
     })
 
-    store.dispatch('list')
+    store.cacheDispatch('list')
     expect(spy.calls.length).toBe(1)
-    store.dispatch('list')
+    store.cacheDispatch('list')
     expect(spy.calls.length).toBe(1)
 
     setTimeout(() => {
