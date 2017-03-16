@@ -7,7 +7,6 @@ Vue.use(Vuex)
 
 describe('cache vuex action', () => {
   it('memory action', done => {
-
     const result = [1, 2, 3]
     const spy = createSpy().andCall(() => {
       return Promise.resolve(result)
