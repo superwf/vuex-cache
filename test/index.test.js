@@ -1,11 +1,11 @@
 import expect, { createSpy } from 'expect'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import memorize from '../src'
+import vuexCache from '../src'
 
 Vue.use(Vuex)
 
-describe('memorize vuex action', () => {
+describe('cache vuex action', () => {
   it('memory action', done => {
 
     const result = [1, 2, 3]
@@ -18,7 +18,7 @@ describe('memorize vuex action', () => {
         list: []
       },
 
-      plugins: [memorize],
+      plugins: [vuexCache],
 
       mutations: {
         list (state, payload) {
@@ -29,18 +29,18 @@ describe('memorize vuex action', () => {
       actions: {
         list ({ commit }) {
           spy().then(list => {
-            commit('list', list)
+            commit('LIST', list)
           })
         }
       }
     })
 
-    store.cacheDispatch('list')
+    store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(1)
-    store.cacheDispatch('list')
+    store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(1)
 
-    setTimeout(() => {
+    Vue.nextTick(() => {
       expect(store.state.list).toEqual(result)
       done()
     })
