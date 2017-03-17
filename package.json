@@ -8,8 +8,10 @@
   "license": "MIT",
   "scripts": {
     "test": "NODE_ENV=test mocha --opts test/mocha.opts test",
+    "lint": "eslint src/index.js",
     "build": "rollup -c"
   },
+  "keywords": ["vuex", "cache"],
   "peerDependencies": {
     "vue": "^2.2.4",
     "vuex": "^2.2.1"
@@ -26,6 +28,8 @@
     "expect": "^1.20.2",
     "mocha": "^3.2.0",
     "rollup": "^0.41.6",
-    "rollup-plugin-babel": "^2.7.1"
+    "rollup-plugin-babel": "^2.7.1",
+    "vue": "^2.2.4",
+    "vuex": "^2.2.1"
   }
 }

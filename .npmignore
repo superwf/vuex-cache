@@ -3,3 +3,7 @@ src/
 test/
 rollup.config.js
 yarn.lock
+.eslintignore
+.eslintrc.js
+.npmignore
+.babelrc

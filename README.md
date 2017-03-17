@@ -38,6 +38,8 @@ store.cacheDispatch('LIST')
 
 params is same with vuex store.dispatch
 
+cacheDispatch will cache the result, so do **not** use it to make some actions with different params, when params change, cacheDispatch would still return the first cached result.
+
 ```
-store.cacheDispatch
+store.cacheDispatch(ACTION_NAME)
 ```

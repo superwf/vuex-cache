@@ -8,4 +8,13 @@ export default store => {
     cache[type] = store.dispatch(...args)
     return cache[type]
   }
+
+  store.clearCache = (...args) => {
+    const type = args[0]
+    if (type in cache) {
+      delete cache[type]
+      return true
+    }
+    return false
+  }
 }
