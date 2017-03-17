@@ -6,10 +6,12 @@
   "repository": "superwf/vuex-cache",
   "author": "superwf@gmail.com",
   "license": "MIT",
+  "homepage": "https://github.com/superwf/vuex-cache",
   "scripts": {
     "test": "NODE_ENV=test mocha --opts test/mocha.opts test",
     "lint": "eslint src/index.js",
-    "build": "NODE_ENV=production rollup -c"
+    "build": "NODE_ENV=production rollup -c",
+    "prepublish": "npm run lint && npm run build"
   },
   "keywords": [
     "vuex",
