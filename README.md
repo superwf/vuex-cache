@@ -36,10 +36,14 @@ store.cacheDispatch('LIST')
 
 ## api
 
-params is same with vuex store.dispatch
-
-cacheDispatch will cache the result, so do **not** use it to make some actions with different params, when params change, cacheDispatch would still return the first cached result.
-
 ```
 store.cacheDispatch(ACTION_NAME)
 ```
+params is same with vuex store.dispatch
+
+cacheDispatch will cache the result, so do **not** use it to make some actions with different params, when params change, cacheDispatch would still return the first cached result, and the data in store will not change.
+
+```
+store.clearCache(ACTION_NAME)
+```
+clear cached action, **not** clear the data in store. when call cacheDispatch with same type, the request in that action will run again.

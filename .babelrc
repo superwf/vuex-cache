@@ -1,7 +1,14 @@
 {
   "env": {
     "production": {
-      "presets": ["es2015-rollup", "stage-0"]
+			"presets": [
+				["latest", {
+					"es2015": {
+						"modules": false
+					}
+				}]
+			],
+			"plugins": ["external-helpers"]
     },
     "test": {
       "presets": ["es2015", "stage-0"]
