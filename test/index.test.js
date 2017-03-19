@@ -15,7 +15,8 @@ describe('cache vuex action', () => {
     })
     store = new Vuex.Store({
       state: {
-        list: []
+        list: [],
+        name: ''
       },
 
       plugins: [vuexCache],
@@ -23,6 +24,9 @@ describe('cache vuex action', () => {
       mutations: {
         LIST (state, payload) {
           state.list = payload
+        },
+        NAME (state, payload) {
+          state.name = payload
         }
       },
 
@@ -31,6 +35,9 @@ describe('cache vuex action', () => {
           spy().then(list => {
             commit('LIST', list)
           })
+        },
+        NAME ({ commit }, name) {
+          commit('NAME', name)
         }
       }
     })
@@ -48,13 +55,27 @@ describe('cache vuex action', () => {
     })
   })
 
-  it('clear cache', () => {
+  it('remove cache return true', () => {
     store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(1)
-    store.clearCache('LIST')
+    expect(store.removeCache('LIST')).toBe(true)
     store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(2)
     store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(2)
+  })
+
+  it('remove cache not exist, return false', () => {
+    expect(store.removeCache('NO_TYPE')).toBe(false)
+  })
+
+  it('clear all cache', () => {
+    store.cacheDispatch('LIST')
+    store.cacheDispatch('NAME', 'abc')
+    expect(store.hasCache('LIST')).toBe(true)
+    expect(store.hasCache('NAME')).toBe(true)
+    store.clearCache()
+    expect(store.hasCache('LIST')).toBe(false)
+    expect(store.hasCache('NAME')).toBe(false)
   })
 })

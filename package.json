@@ -1,6 +1,6 @@
 {
   "name": "vuex-cache",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "cache vuex action",
   "main": "index.js",
   "repository": "superwf/vuex-cache",
@@ -9,6 +9,7 @@
   "homepage": "https://github.com/superwf/vuex-cache",
   "scripts": {
     "test": "NODE_ENV=test mocha --opts test/mocha.opts test",
+    "cover": "NODE_ENV=test istanbul cover $(npm bin)/_mocha test",
     "lint": "eslint src/index.js",
     "build": "NODE_ENV=production rollup -c",
     "prepublish": "npm run lint && npm run build"
@@ -33,6 +34,7 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^2.1.1",
     "expect": "^1.20.2",
+    "istanbul": "1.0.0-alpha.2",
     "mocha": "^3.2.0",
     "rollup": "^0.41.6",
     "rollup-plugin-babel": "^2.7.1",
