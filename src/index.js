@@ -1,18 +1,17 @@
 export default store => {
   const cache = Object.create(null)
-  store.cacheDispatch = (...args) => {
-    const type = args[0]
+  store.cacheDispatch = function cacheDispatch () {
+    const type = arguments[0]
     if (type in cache) {
       return cache[type]
     }
-    cache[type] = store.dispatch(...args)
+    cache[type] = store.dispatch.apply(store, arguments)
     return cache[type]
   }
 
-  store.removeCache = (...args) => {
-    const type = args[0]
-    if (type in cache) {
-      delete cache[type]
+  store.removeCache = actionName => {
+    if (actionName in cache) {
+      delete cache[actionName]
       return true
     }
     return false

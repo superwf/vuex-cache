@@ -1,6 +1,6 @@
 {
   "name": "vuex-cache",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "cache vuex action",
   "main": "index.js",
   "repository": "superwf/vuex-cache",
@@ -12,7 +12,7 @@
     "cover": "NODE_ENV=test istanbul cover $(npm bin)/_mocha test",
     "lint": "eslint src/index.js",
     "build": "NODE_ENV=production rollup -c",
-    "prepublish": "npm run lint && npm run build"
+    "prepublish": "npm run lint && npm run cover && npm run build"
   },
   "keywords": [
     "vuex",

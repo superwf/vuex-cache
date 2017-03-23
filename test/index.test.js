@@ -1,4 +1,4 @@
-import expect, { createSpy } from 'expect'
+import expect, { createSpy, spyOn } from 'expect'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import vuexCache from '../src'
@@ -44,13 +44,16 @@ describe('cache vuex action', () => {
   })
 
   it('cache action', done => {
-    store.cacheDispatch('LIST')
+    const dispatchSpy = spyOn(store, 'dispatch').andCallThrough()
+    store.cacheDispatch('LIST', 1, 2)
+    expect(dispatchSpy).toHaveBeenCalledWith('LIST', 1, 2)
     expect(spy.calls.length).toBe(1)
     store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(1)
 
     Vue.nextTick(() => {
       expect(store.state.list).toEqual(result)
+      dispatchSpy.restore()
       done()
     })
   })
@@ -59,6 +62,7 @@ describe('cache vuex action', () => {
     store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(1)
     expect(store.removeCache('LIST')).toBe(true)
+    expect(store.removeCache('LIST')).toBe(false)
     store.cacheDispatch('LIST')
     expect(spy.calls.length).toBe(2)
     store.cacheDispatch('LIST')
