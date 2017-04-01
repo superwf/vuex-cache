@@ -1,15 +1,16 @@
 # vuex cache action
 
-* * *
-
 When vuex action fetch some data by request remote api, vuex-cache can store the action result, when next time the same action runs, it will not make a new request and just return the cached result.
 
-## install
+### Compatibility
+Compatible with vuex@2.x
+
+### install
 ```bash
 npm install vuex-cache
 ```
 
-## usage
+### usage
 
 ```javascript
 import Vuex from 'vuex'
@@ -33,7 +34,7 @@ const store = new Vuex.Store({
 store.cacheDispatch('LIST')
 ```
 
-## api
+### api
 
 ```javascript
 store.cacheDispatch(ACTION_NAME)
