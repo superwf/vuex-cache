@@ -3,7 +3,7 @@
 When vuex action fetch some data by request remote api, vuex-cache can store the action result, when next time the same action runs, it will not make a new request and just return the cached result.
 
 ### Compatibility
-Compatible with vue2.x and vuex2.x
+Compatible with Vue2.x and Vuex2.x
 
 ### install
 ```bash
