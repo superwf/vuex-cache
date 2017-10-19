@@ -31,29 +31,29 @@ const store = new Vuex.Store({
   }
 })
 
-store.cacheDispatch('LIST')
+store.cache.dispatch('LIST')
 ```
 
 ### api
 
 ```javascript
-store.cacheDispatch(ACTION_NAME)
+store.cache.dispatch(ACTION_NAME)
 ```
 params is same with vuex store.dispatch
 
 cacheDispatch will cache the result, so do **not** use it to make some actions with different params, when params change, cacheDispatch would still return the first cached result, and the data in store will not change.
 
 ```javascript
-store.removeCache(ACTION_NAME)
+store.cache.delete(ACTION_NAME)
 ```
 remove cached action, will **not** remove the data in store. when call cacheDispatch with same type, the request in that action will run again.
 
 ```javascript
-store.hasCache(ACTION_NAME)
+store.cache.has(ACTION_NAME)
 ```
 return bool if ACTION\_NAME has been cached
 
 ```javascript
-store.clearCache()
+store.cache.clear()
 ```
 clear all cached keys
