@@ -36,6 +36,12 @@ store.cache.dispatch('LIST')
 
 ### api
 
+#### NOTICE: after update to 1.0.0, main api is different from the previous version 0.3.1
+
+1.0.0 need your env has **Map** object, or import **Map** from babel-polyfill
+
+thanks [VitorLuizC](https://github.com/VitorLuizC)
+
 ```javascript
 store.cache.dispatch(ACTION_NAME)
 ```
