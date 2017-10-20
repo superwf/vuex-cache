@@ -45,10 +45,10 @@ describe('cache vuex action', () => {
 
   it('cache action', done => {
     const dispatchSpy = spyOn(store, 'dispatch').andCallThrough()
-    store.cacheDispatch('LIST', 1, 2)
+    store.cache.dispatch('LIST', 1, 2)
     expect(dispatchSpy).toHaveBeenCalledWith('LIST', 1, 2)
     expect(spy.calls.length).toBe(1)
-    store.cacheDispatch('LIST')
+    store.cache.dispatch('LIST')
     expect(spy.calls.length).toBe(1)
 
     Vue.nextTick(() => {
@@ -59,27 +59,27 @@ describe('cache vuex action', () => {
   })
 
   it('remove cache return true', () => {
-    store.cacheDispatch('LIST')
+    store.cache.dispatch('LIST')
     expect(spy.calls.length).toBe(1)
-    expect(store.removeCache('LIST')).toBe(true)
-    expect(store.removeCache('LIST')).toBe(false)
-    store.cacheDispatch('LIST')
+    expect(store.cache.delete('LIST')).toBe(true)
+    expect(store.cache.delete('LIST')).toBe(false)
+    store.cache.dispatch('LIST')
     expect(spy.calls.length).toBe(2)
-    store.cacheDispatch('LIST')
+    store.cache.dispatch('LIST')
     expect(spy.calls.length).toBe(2)
   })
 
   it('remove cache not exist, return false', () => {
-    expect(store.removeCache('NO_TYPE')).toBe(false)
+    expect(store.cache.delete('NO_TYPE')).toBe(false)
   })
 
   it('clear all cache', () => {
-    store.cacheDispatch('LIST')
-    store.cacheDispatch('NAME', 'abc')
-    expect(store.hasCache('LIST')).toBe(true)
-    expect(store.hasCache('NAME')).toBe(true)
-    store.clearCache()
-    expect(store.hasCache('LIST')).toBe(false)
-    expect(store.hasCache('NAME')).toBe(false)
+    store.cache.dispatch('LIST')
+    store.cache.dispatch('NAME', 'abc')
+    expect(store.cache.has('LIST')).toBe(true)
+    expect(store.cache.has('NAME')).toBe(true)
+    store.cache.clear()
+    expect(store.cache.has('LIST')).toBe(false)
+    expect(store.cache.has('NAME')).toBe(false)
   })
 })
