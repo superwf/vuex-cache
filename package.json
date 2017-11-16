@@ -1,6 +1,6 @@
 {
   "name": "vuex-cache",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "cache vuex action",
   "main": "index.js",
   "repository": "superwf/vuex-cache",
@@ -18,10 +18,6 @@
     "vuex",
     "cache"
   ],
-  "peerDependencies": {
-    "vue": "^2.2.4",
-    "vuex": "^2.2.1"
-  },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
     "babel-plugin-external-helpers": "^6.22.0",
