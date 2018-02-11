@@ -49,7 +49,7 @@ describe('cache vuex action', () => {
     expect(dispatchSpy).toHaveBeenCalledWith('LIST', 1, 2)
     expect(spy.calls.length).toBe(1)
     store.cache.dispatch('LIST')
-    expect(spy.calls.length).toBe(1)
+    expect(spy.calls.length).toBe(2)
 
     Vue.nextTick(() => {
       expect(store.state.list).toEqual(result)
@@ -77,9 +77,90 @@ describe('cache vuex action', () => {
     store.cache.dispatch('LIST')
     store.cache.dispatch('NAME', 'abc')
     expect(store.cache.has('LIST')).toBe(true)
-    expect(store.cache.has('NAME')).toBe(true)
+    expect(store.cache.has('NAME', 'abc')).toBe(true)
     store.cache.clear()
     expect(store.cache.has('LIST')).toBe(false)
-    expect(store.cache.has('NAME')).toBe(false)
+    expect(store.cache.has('NAME', 'abc')).toBe(false)
+  })
+
+  it('cache object param', () => {
+    store.cache.dispatch({
+      type: 'LIST',
+      page: 1
+    })
+    store.cache.dispatch({
+      type: 'LIST',
+      page: 1
+    })
+    store.cache.dispatch({
+      type: 'LIST',
+      page: 2
+    })
+    expect(spy.calls.length).toBe(2)
+  })
+
+  it('delete cache with object', () => {
+    store.cache.dispatch({
+      type: 'LIST',
+      page: 1
+    })
+    expect(spy.calls.length).toBe(1)
+    expect(
+      store.cache.delete({
+        type: 'LIST',
+        page: 1
+      })
+    ).toBe(true)
+    expect(
+      store.cache.delete({
+        type: 'LIST',
+        page: 1
+      })
+    ).toBe(false)
+  })
+
+  it('has/clear cache with object', () => {
+    store.cache.dispatch({
+      type: 'LIST',
+      page: 1
+    })
+    store.cache.dispatch({
+      type: 'LIST',
+      page: 2
+    })
+    expect(
+      store.cache.has({
+        type: 'LIST',
+        page: 1
+      })
+    ).toBe(true)
+    expect(
+      store.cache.has({
+        type: 'LIST',
+        page: 2
+      })
+    ).toBe(true)
+    store.cache.clear()
+    expect(
+      store.cache.has({
+        type: 'LIST',
+        page: 1
+      })
+    ).toBe(false)
+    expect(
+      store.cache.has({
+        type: 'LIST',
+        page: 2
+      })
+    ).toBe(false)
+  })
+
+  it('has two arguments', () => {
+    store.cache.dispatch('LIST', { page: 1 })
+    store.cache.dispatch('LIST', { page: 1 })
+    expect(spy.calls.length).toBe(1)
+    store.cache.dispatch('LIST', { page: 2 })
+    store.cache.dispatch('LIST', { page: 2 })
+    expect(spy.calls.length).toBe(2)
   })
 })

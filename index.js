@@ -1,15 +1,1 @@
-'use strict';
-
-var index = (function (store) {
-  store.cache = new Map();
-
-  store.cache.dispatch = function () {
-    var type = arguments[0];
-    if (!store.cache.has(type)) {
-      store.cache.set(type, store.dispatch.apply(store, arguments));
-    }
-    return store.cache.get(type);
-  };
-});
-
-module.exports = index;
+"use strict";const toString=t=>"string"==typeof t?t:JSON.stringify(t),argsToString=t=>{let n=toString(t[0]);return t[1]&&(n=`${n}:${toString(t[1])}`),n};var index=t=>{const n=new Map;n.dispatch=((...r)=>{const e=argsToString(r);return n.has(e)||n.set(e,t.dispatch.apply(t,r)),n.get(e)});const r=n.has.bind(n);n.has=((...t)=>{let n=argsToString(t);return r(toString(n))});const e=n.delete.bind(n);n.delete=(t=>e(toString(t))),t.cache=n};module.exports=index;

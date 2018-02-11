@@ -1,11 +1,34 @@
-export default (store) => {
-  store.cache = new Map()
+// convert string or obj to string
+const toString = arg => (typeof arg === 'string' ? arg : JSON.stringify(arg))
 
-  store.cache.dispatch = function () {
-    const type = arguments[0]
-    if (!store.cache.has(type)) {
-      store.cache.set(type, store.dispatch.apply(store, arguments))
-    }
-    return store.cache.get(type)
+// convert arguments to string
+const argsToString = args => {
+  let type = toString(args[0])
+  if (args[1]) {
+    type = `${type}:${toString(args[1])}`
   }
+  return type
+}
+
+export default store => {
+  const cache = new Map()
+
+  cache.dispatch = (...args) => {
+    const type = argsToString(args)
+    if (!cache.has(type)) {
+      cache.set(type, store.dispatch.apply(store, args))
+    }
+    return cache.get(type)
+  }
+
+  const _has = cache.has.bind(cache)
+  cache.has = (...args) => {
+    let key = argsToString(args)
+    return _has(toString(key))
+  }
+
+  const _delete = cache.delete.bind(cache)
+  cache.delete = key => _delete(toString(key))
+
+  store.cache = cache
 }
