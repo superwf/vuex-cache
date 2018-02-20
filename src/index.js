@@ -23,12 +23,15 @@ export default store => {
 
   const _has = cache.has.bind(cache)
   cache.has = (...args) => {
-    let key = argsToString(args)
+    const key = argsToString(args)
     return _has(toString(key))
   }
 
   const _delete = cache.delete.bind(cache)
-  cache.delete = key => _delete(toString(key))
+  cache.delete = (...args) => {
+    const key = argsToString(args)
+    return _delete(toString(key))
+  }
 
   store.cache = cache
 }

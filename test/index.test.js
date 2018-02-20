@@ -119,6 +119,14 @@ describe('cache vuex action', () => {
     ).toBe(false)
   })
 
+  it('delete cache with two params', () => {
+    store.cache.dispatch('LIST', 1)
+    expect(spy.calls.length).toBe(1)
+    expect(store.cache.has('LIST', 1)).toBe(true)
+    expect(store.cache.delete('LIST', 1)).toBe(true)
+    expect(store.cache.delete('LIST', 1)).toBe(false)
+  })
+
   it('has/clear cache with object', () => {
     store.cache.dispatch({
       type: 'LIST',
