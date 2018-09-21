@@ -1,4 +1,3 @@
-import expect, { createSpy, spyOn } from 'expect'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import vuexCache from '../src'
@@ -10,63 +9,63 @@ describe('cache vuex action', () => {
   let store, spy
 
   beforeEach(() => {
-    spy = createSpy().andCall(() => {
+    spy = jest.fn(() => {
       return Promise.resolve(result)
     })
     store = new Vuex.Store({
       state: {
         list: [],
-        name: ''
+        name: '',
       },
 
       plugins: [vuexCache],
 
       mutations: {
-        LIST (state, payload) {
+        LIST(state, payload) {
           state.list = payload
         },
-        NAME (state, payload) {
+        NAME(state, payload) {
           state.name = payload
-        }
+        },
       },
 
       actions: {
-        LIST ({ commit }) {
+        LIST({ commit }) {
           spy().then(list => {
             commit('LIST', list)
           })
         },
-        NAME ({ commit }, name) {
+        NAME({ commit }, name) {
           commit('NAME', name)
-        }
-      }
+        },
+      },
     })
   })
 
   it('cache action', done => {
-    const dispatchSpy = spyOn(store, 'dispatch').andCallThrough()
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
     store.cache.dispatch('LIST', 1, 2)
     expect(dispatchSpy).toHaveBeenCalledWith('LIST', 1, 2)
-    expect(spy.calls.length).toBe(1)
+    expect(spy.mock.calls).toHaveLength(1)
     store.cache.dispatch('LIST')
-    expect(spy.calls.length).toBe(2)
+    expect(spy.mock.calls).toHaveLength(2)
 
     Vue.nextTick(() => {
       expect(store.state.list).toEqual(result)
-      dispatchSpy.restore()
+      dispatchSpy.mockRestore()
       done()
     })
   })
 
   it('remove cache return true', () => {
     store.cache.dispatch('LIST')
-    expect(spy.calls.length).toBe(1)
+    expect(spy.mock.calls).toHaveLength(1)
     expect(store.cache.delete('LIST')).toBe(true)
     expect(store.cache.delete('LIST')).toBe(false)
     store.cache.dispatch('LIST')
-    expect(spy.calls.length).toBe(2)
+    expect(spy.mock.calls).toHaveLength(2)
     store.cache.dispatch('LIST')
-    expect(spy.calls.length).toBe(2)
+    expect(spy.mock.calls).toHaveLength(2)
   })
 
   it('remove cache not exist, return false', () => {
@@ -86,42 +85,42 @@ describe('cache vuex action', () => {
   it('cache object param', () => {
     store.cache.dispatch({
       type: 'LIST',
-      page: 1
+      page: 1,
     })
     store.cache.dispatch({
       type: 'LIST',
-      page: 1
+      page: 1,
     })
     store.cache.dispatch({
       type: 'LIST',
-      page: 2
+      page: 2,
     })
-    expect(spy.calls.length).toBe(2)
+    expect(spy.mock.calls).toHaveLength(2)
   })
 
   it('delete cache with object', () => {
     store.cache.dispatch({
       type: 'LIST',
-      page: 1
+      page: 1,
     })
-    expect(spy.calls.length).toBe(1)
+    expect(spy.mock.calls).toHaveLength(1)
     expect(
       store.cache.delete({
         type: 'LIST',
-        page: 1
-      })
+        page: 1,
+      }),
     ).toBe(true)
     expect(
       store.cache.delete({
         type: 'LIST',
-        page: 1
-      })
+        page: 1,
+      }),
     ).toBe(false)
   })
 
   it('delete cache with two params', () => {
     store.cache.dispatch('LIST', 1)
-    expect(spy.calls.length).toBe(1)
+    expect(spy.mock.calls).toHaveLength(1)
     expect(store.cache.has('LIST', 1)).toBe(true)
     expect(store.cache.delete('LIST', 1)).toBe(true)
     expect(store.cache.delete('LIST', 1)).toBe(false)
@@ -130,45 +129,45 @@ describe('cache vuex action', () => {
   it('has/clear cache with object', () => {
     store.cache.dispatch({
       type: 'LIST',
-      page: 1
+      page: 1,
     })
     store.cache.dispatch({
       type: 'LIST',
-      page: 2
+      page: 2,
     })
     expect(
       store.cache.has({
         type: 'LIST',
-        page: 1
-      })
+        page: 1,
+      }),
     ).toBe(true)
     expect(
       store.cache.has({
         type: 'LIST',
-        page: 2
-      })
+        page: 2,
+      }),
     ).toBe(true)
     store.cache.clear()
     expect(
       store.cache.has({
         type: 'LIST',
-        page: 1
-      })
+        page: 1,
+      }),
     ).toBe(false)
     expect(
       store.cache.has({
         type: 'LIST',
-        page: 2
-      })
+        page: 2,
+      }),
     ).toBe(false)
   })
 
   it('has two arguments', () => {
     store.cache.dispatch('LIST', { page: 1 })
     store.cache.dispatch('LIST', { page: 1 })
-    expect(spy.calls.length).toBe(1)
+    expect(spy.mock.calls).toHaveLength(1)
     store.cache.dispatch('LIST', { page: 2 })
     store.cache.dispatch('LIST', { page: 2 })
-    expect(spy.calls.length).toBe(2)
+    expect(spy.mock.calls).toHaveLength(2)
   })
 })

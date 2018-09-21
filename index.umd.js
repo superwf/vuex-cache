@@ -1,1 +1,67 @@
-!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):e["vuex-cache"]=n()}(this,function(){"use strict";var e=function(e){return"string"==typeof e?e:JSON.stringify(e)},n=function(n){var r=e(n[0]);return n[1]&&(r=r+":"+e(n[1])),r};return function(r){var t=new Map;t.dispatch=function(){for(var e=arguments.length,a=Array(e),i=0;e>i;i++)a[i]=arguments[i];var f=n(a);return t.has(f)||t.set(f,r.dispatch.apply(r,a)),t.get(f)};var a=t.has.bind(t);t.has=function(){for(var r=arguments.length,t=Array(r),i=0;r>i;i++)t[i]=arguments[i];var f=n(t);return a(e(f))};var i=t.delete.bind(t);t.delete=function(){for(var r=arguments.length,t=Array(r),a=0;r>a;a++)t[a]=arguments[a];var f=n(t);return i(e(f))},r.cache=t}});
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global['vuex-cache'] = factory());
+}(this, (function () { 'use strict';
+
+  // convert string or obj to string
+  var toString = function toString(arg) {
+    return typeof arg === 'string' ? arg : JSON.stringify(arg);
+  }; // convert arguments to string
+
+
+  var argsToString = function argsToString(args) {
+    var type = toString(args[0]);
+
+    if (args[1]) {
+      type = "".concat(type, ":").concat(toString(args[1]));
+    }
+
+    return type;
+  };
+
+  var index = (function (store) {
+    var cache = new Map();
+
+    cache.dispatch = function () {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      var type = argsToString(args);
+
+      if (!cache.has(type)) {
+        cache.set(type, store.dispatch.apply(store, args));
+      }
+
+      return cache.get(type);
+    };
+
+    var _has = cache.has.bind(cache);
+
+    cache.has = function () {
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      var key = argsToString(args);
+      return _has(toString(key));
+    };
+
+    var _delete = cache.delete.bind(cache);
+
+    cache.delete = function () {
+      for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
+
+      var key = argsToString(args);
+      return _delete(toString(key));
+    };
+
+    store.cache = cache;
+  });
+
+  return index;
+
+})));

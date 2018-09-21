@@ -2,6 +2,9 @@
 
 When vuex action fetch some data by request remote api, vuex-cache can store the action result, when next time the same action runs, it will not make a new request and just return the cached result.
 
+#### 2018-09-21
+update to use babel7 env to compile. If there is something wrong, please let me know by issue.
+
 ### Compatibility
 - Any Vue version, since `vuex-cache` just deals with Vuex
 - Vuex versions 1, 2 and 3
