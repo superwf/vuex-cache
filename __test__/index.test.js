@@ -6,12 +6,34 @@ Vue.use(Vuex)
 
 describe('cache vuex action', () => {
   const result = [1, 2, 3]
-  let store, spy
+  let store, spy, moduleASpy
 
   beforeEach(() => {
     spy = jest.fn(() => {
       return Promise.resolve(result)
     })
+
+    moduleASpy = jest.fn(() => {
+      return Promise.resolve()
+    })
+
+    const moduleA = {
+      state: {
+        members: [],
+      },
+      mutations: {
+        MODULEA_ADD_MEMBER(state, payload) {
+          state.members.push(payload)
+        },
+      },
+      actions: {
+        MODULEA_ADD_MEMBER({ commit }, value) {
+          return moduleASpy().then(() => {
+            commit('MODULEA_ADD_MEMBER', value)
+          })
+        },
+      },
+    }
     store = new Vuex.Store({
       state: {
         list: [],
@@ -27,6 +49,10 @@ describe('cache vuex action', () => {
         NAME(state, payload) {
           state.name = payload
         },
+      },
+
+      modules: {
+        moduleA,
       },
 
       actions: {
@@ -169,5 +195,18 @@ describe('cache vuex action', () => {
     store.cache.dispatch('LIST', { page: 2 })
     store.cache.dispatch('LIST', { page: 2 })
     expect(spy.mock.calls).toHaveLength(2)
+  })
+
+  it('test cache dispatch for module', done => {
+    expect(store.state.moduleA.members).toEqual([])
+    Promise.all([
+      store.cache.dispatch('MODULEA_ADD_MEMBER', 1),
+      store.cache.dispatch('MODULEA_ADD_MEMBER', 1),
+      store.cache.dispatch('MODULEA_ADD_MEMBER', 1),
+    ]).then(() => {
+      expect(store.state.moduleA.members).toEqual([1])
+      expect(moduleASpy).toHaveBeenCalledTimes(1)
+      done()
+    })
   })
 })
