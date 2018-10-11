@@ -6,10 +6,10 @@ Vue.use(Vuex)
 
 describe('cache vuex action', () => {
   const result = [1, 2, 3]
-  let store, spy, moduleASpy
+  let store, listSpy, moduleASpy
 
   beforeEach(() => {
-    spy = jest.fn(() => {
+    listSpy = jest.fn(() => {
       return Promise.resolve(result)
     })
 
@@ -46,8 +46,8 @@ describe('cache vuex action', () => {
         LIST(state, payload) {
           state.list = payload
         },
-        NAME(state, payload) {
-          state.name = payload
+        NAME(state, { name }) {
+          state.name = name
         },
       },
 
@@ -57,7 +57,7 @@ describe('cache vuex action', () => {
 
       actions: {
         LIST({ commit }) {
-          spy().then(list => {
+          listSpy().then(list => {
             commit('LIST', list)
           })
         },
@@ -68,30 +68,33 @@ describe('cache vuex action', () => {
     })
   })
 
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   it('cache action', done => {
     const dispatchSpy = jest.spyOn(store, 'dispatch')
     store.cache.dispatch('LIST', 1, 2)
     expect(dispatchSpy).toHaveBeenCalledWith('LIST', 1, 2)
-    expect(spy.mock.calls).toHaveLength(1)
+    expect(listSpy.mock.calls).toHaveLength(1)
     store.cache.dispatch('LIST')
-    expect(spy.mock.calls).toHaveLength(2)
+    expect(listSpy.mock.calls).toHaveLength(2)
 
     Vue.nextTick(() => {
       expect(store.state.list).toEqual(result)
-      dispatchSpy.mockRestore()
       done()
     })
   })
 
   it('remove cache return true', () => {
     store.cache.dispatch('LIST')
-    expect(spy.mock.calls).toHaveLength(1)
+    expect(listSpy.mock.calls).toHaveLength(1)
     expect(store.cache.delete('LIST')).toBe(true)
     expect(store.cache.delete('LIST')).toBe(false)
     store.cache.dispatch('LIST')
-    expect(spy.mock.calls).toHaveLength(2)
+    expect(listSpy.mock.calls).toHaveLength(2)
     store.cache.dispatch('LIST')
-    expect(spy.mock.calls).toHaveLength(2)
+    expect(listSpy.mock.calls).toHaveLength(2)
   })
 
   it('remove cache not exist, return false', () => {
@@ -99,29 +102,30 @@ describe('cache vuex action', () => {
   })
 
   it('clear all cache', () => {
+    const name = 'abc'
     store.cache.dispatch('LIST')
-    store.cache.dispatch('NAME', 'abc')
+    store.cache.dispatch('NAME', { name })
     expect(store.cache.has('LIST')).toBe(true)
-    expect(store.cache.has('NAME', 'abc')).toBe(true)
+    expect(store.cache.has('NAME', { name })).toBe(true)
     store.cache.clear()
     expect(store.cache.has('LIST')).toBe(false)
-    expect(store.cache.has('NAME', 'abc')).toBe(false)
+    expect(store.cache.has('NAME', { name })).toBe(false)
   })
 
   it('cache object param', () => {
     store.cache.dispatch({
       type: 'LIST',
-      page: 1,
+      payload: 1,
     })
     store.cache.dispatch({
       type: 'LIST',
-      page: 1,
+      payload: 1,
     })
     store.cache.dispatch({
       type: 'LIST',
-      page: 2,
+      payload: 2,
     })
-    expect(spy.mock.calls).toHaveLength(2)
+    expect(listSpy.mock.calls).toHaveLength(2)
   })
 
   it('delete cache with object', () => {
@@ -129,7 +133,7 @@ describe('cache vuex action', () => {
       type: 'LIST',
       page: 1,
     })
-    expect(spy.mock.calls).toHaveLength(1)
+    expect(listSpy.mock.calls).toHaveLength(1)
     expect(
       store.cache.delete({
         type: 'LIST',
@@ -146,7 +150,7 @@ describe('cache vuex action', () => {
 
   it('delete cache with two params', () => {
     store.cache.dispatch('LIST', 1)
-    expect(spy.mock.calls).toHaveLength(1)
+    expect(listSpy.mock.calls).toHaveLength(1)
     expect(store.cache.has('LIST', 1)).toBe(true)
     expect(store.cache.delete('LIST', 1)).toBe(true)
     expect(store.cache.delete('LIST', 1)).toBe(false)
@@ -191,10 +195,10 @@ describe('cache vuex action', () => {
   it('has two arguments', () => {
     store.cache.dispatch('LIST', { page: 1 })
     store.cache.dispatch('LIST', { page: 1 })
-    expect(spy.mock.calls).toHaveLength(1)
+    expect(listSpy.mock.calls).toHaveLength(1)
     store.cache.dispatch('LIST', { page: 2 })
     store.cache.dispatch('LIST', { page: 2 })
-    expect(spy.mock.calls).toHaveLength(2)
+    expect(listSpy.mock.calls).toHaveLength(2)
   })
 
   it('test cache dispatch for module', done => {
@@ -207,6 +211,71 @@ describe('cache vuex action', () => {
       expect(store.state.moduleA.members).toEqual([1])
       expect(moduleASpy).toHaveBeenCalledTimes(1)
       done()
+    })
+  })
+
+  describe('add timeout configuration', () => {
+    const sleep = time => new Promise(resolve => setTimeout(resolve, time))
+    it('object format param', async () => {
+      await store.cache.dispatch({
+        type: 'LIST',
+        timeout: 100,
+      })
+      await store.cache.dispatch({
+        type: 'LIST',
+        timeout: 100,
+      })
+      expect(listSpy).toHaveBeenCalledTimes(1)
+
+      await sleep(110)
+      await store.cache.dispatch({
+        type: 'LIST',
+        timeout: 100,
+      })
+      await store.cache.dispatch({
+        type: 'LIST',
+        timeout: 100,
+      })
+      expect(listSpy).toHaveBeenCalledTimes(2)
+
+      await sleep(90)
+      await store.cache.dispatch({
+        type: 'LIST',
+        timeout: 100,
+      })
+      await store.cache.dispatch({
+        type: 'LIST',
+        timeout: 100,
+      })
+      expect(listSpy).toHaveBeenCalledTimes(2)
+    })
+
+    it('three param', async () => {
+      await store.cache.dispatch('LIST', null, {
+        timeout: 100,
+      })
+      await store.cache.dispatch('LIST', null, {
+        timeout: 100,
+      })
+      expect(listSpy).toHaveBeenCalledTimes(1)
+
+      await sleep(110)
+      await store.cache.dispatch('LIST', null, {
+        timeout: 100,
+      })
+      await store.cache.dispatch('LIST', null, {
+        timeout: 100,
+      })
+      expect(listSpy).toHaveBeenCalledTimes(2)
+
+      await sleep(90)
+      await store.cache.dispatch('LIST', null, {
+        timeout: 100,
+      })
+      await store.cache.dispatch('LIST', null, {
+        timeout: 100,
+      })
+      expect(listSpy).toHaveBeenCalledTimes(2)
     })
   })
 })

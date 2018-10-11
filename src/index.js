@@ -10,11 +10,40 @@ const argsToString = args => {
   return type
 }
 
+// parse timeout prop in option
+const getTimeout = args => {
+  if (args.length === 1 && args[0].timeout) {
+    return args[0].timeout
+  }
+  if (args.length === 3 && args[2].timeout) {
+    return args[2].timeout
+  }
+  return 0
+}
+
 export default store => {
   const cache = new Map()
+  // use another map to store timeout for each type
+  const timeoutCache = new Map()
 
   cache.dispatch = (...args) => {
     const type = argsToString(args)
+
+    const timeout = getTimeout(args)
+    if (timeout) {
+      const now = Date.now()
+      if (!timeoutCache.has(type)) {
+        timeoutCache.set(type, now)
+      } else {
+        const timeoutOfCurrentType = timeoutCache.get(type)
+        // console.log(now - timeout, timeoutOfCurrentType)
+        if (now - timeout > timeoutOfCurrentType) {
+          cache.delete(type)
+          timeoutCache.delete(type)
+        }
+      }
+    }
+
     if (!cache.has(type)) {
       cache.set(type, store.dispatch.apply(store, args))
     }

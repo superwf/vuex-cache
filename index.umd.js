@@ -18,10 +18,25 @@
     }
 
     return type;
+  }; // parse timeout prop in option
+
+
+  var getTimeout = function getTimeout(args) {
+    if (args.length === 1 && args[0].timeout) {
+      return args[0].timeout;
+    }
+
+    if (args.length === 3 && args[2].timeout) {
+      return args[2].timeout;
+    }
+
+    return 0;
   };
 
   var index = (function (store) {
-    var cache = new Map();
+    var cache = new Map(); // use another map to store timeout for each type
+
+    var timeoutCache = new Map();
 
     cache.dispatch = function () {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -29,6 +44,22 @@
       }
 
       var type = argsToString(args);
+      var timeout = getTimeout(args);
+
+      if (timeout) {
+        var now = Date.now();
+
+        if (!timeoutCache.has(type)) {
+          timeoutCache.set(type, now);
+        } else {
+          var timeoutOfCurrentType = timeoutCache.get(type); // console.log(now - timeout, timeoutOfCurrentType)
+
+          if (now - timeout > timeoutOfCurrentType) {
+            cache.delete(type);
+            timeoutCache.delete(type);
+          }
+        }
+      }
 
       if (!cache.has(type)) {
         cache.set(type, store.dispatch.apply(store, args));

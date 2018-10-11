@@ -5,6 +5,45 @@ When vuex action fetch some data by request remote api, vuex-cache can store the
 #### 2018-09-21
 update to use babel7 env to compile. If there is something wrong, please let me know by issue.
 
+#### 2018-10-11
+##### NEW FEATUE, add `timeout` option
+
+```javascript
+store.cache.dispatch({
+  type: ACTION_NAME,
+  timeout: 100,
+  payload: { ... }
+})
+// or
+store.cache.dispatch(ACTION_NAME, payload, {
+  timeout: 100,
+})
+```
+
+after the `timeout` time, run `store.cache.dispatch(...)` will rerun the real dispatch code.
+
+##### NOTICE for `timeout` option
+
+Because the js execution also spends time, so the `timeout` maybe not very accurate for computer time. For example
+
+cache for 100 millisecond
+```javascript
+store.cache.dispatch({
+  type: ACTION_NAME,
+  timeout: 100,
+})
+```
+... after 99 millisecond
+
+```javascript
+store.cache.dispatch({
+  type: ACTION_NAME,
+  timeout: 100,
+})
+```
+In logic, the cache is not out of time, and the real dispatch should not run. But the `cache.dispatch` may cost 1 or more milliseconds for executing, so the real dispatch may or may __not__ execute.
+For human time, the precision should be enough.
+
 ### Compatibility
 - Any Vue version, since `vuex-cache` just deals with Vuex
 - Vuex versions 1, 2 and 3
@@ -90,6 +129,7 @@ store.cache.delete({
   param: {...}
 })
 ```
+
 remove cached action, will **NOT** remove the data in store. when call cacheDispatch with same type, the request in that action will run again.
 
 ```javascript
@@ -102,9 +142,11 @@ store.cache.has({
   param: {...}
 })
 ```
+
 return bool if ACTION\_NAME has been cached
 
 ```javascript
 store.cache.clear()
 ```
+
 clear all cached keys
