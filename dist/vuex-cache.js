@@ -1,7 +1,12 @@
+/*!
+ * vuex-cache v1.4.0
+ * (c) 2017-present superwf@gmail.com
+ * Released under the MIT License.
+ */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global['vuex-cache'] = factory());
+  (global.vuexCache = factory());
 }(this, (function () { 'use strict';
 
   var isVuexStore = function isVuexStore(obj) {
