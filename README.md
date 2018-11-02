@@ -3,9 +3,11 @@
 When vuex action fetch some data by request remote api, vuex-cache can store the action result, when next time the same action runs, it will not make a new request and just return the cached result.
 
 #### 2018-09-21
+
 update to use babel7 env to compile. If there is something wrong, please let me know by issue.
 
 #### 2018-10-11
+
 ##### NEW FEATUE, add `timeout` option
 
 ```javascript
@@ -43,6 +45,17 @@ store.cache.dispatch({
 ```
 In logic, the cache is not out of time, and the real dispatch should not run. But the `cache.dispatch` may cost 1 or more milliseconds for executing, so the real dispatch may or may __not__ execute.
 For human time, the precision should be enough.
+
+#### Add default timeout option when create the store
+
+```
+const store = new Vuex.Store({
+  plugins: [vuexCache({ timeout: 2000 })],
+  ...
+})
+```
+
+the default timeout could be overwrite by each dispatch revoke.
 
 ### Compatibility
 - Any Vue version, since `vuex-cache` just deals with Vuex

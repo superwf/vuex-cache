@@ -8,6 +8,57 @@ describe('cache vuex action', () => {
   const result = [1, 2, 3]
   let store, listSpy, moduleASpy
 
+  const moduleA = {
+    state: {
+      members: [],
+    },
+    mutations: {
+      MODULEA_ADD_MEMBER(state, payload) {
+        state.members.push(payload)
+      },
+    },
+    actions: {
+      MODULEA_ADD_MEMBER({ commit }, value) {
+        return moduleASpy().then(() => {
+          commit('MODULEA_ADD_MEMBER', value)
+        })
+      },
+    },
+  }
+
+  const storeOption = {
+    state: {
+      list: [],
+      name: '',
+    },
+
+    plugins: [vuexCache],
+
+    mutations: {
+      LIST(state, payload) {
+        state.list = payload
+      },
+      NAME(state, { name }) {
+        state.name = name
+      },
+    },
+
+    modules: {
+      moduleA,
+    },
+
+    actions: {
+      LIST({ commit }) {
+        listSpy().then(list => {
+          commit('LIST', list)
+        })
+      },
+      NAME({ commit }, name) {
+        commit('NAME', name)
+      },
+    },
+  }
+
   beforeEach(() => {
     listSpy = jest.fn(() => {
       return Promise.resolve(result)
@@ -16,56 +67,7 @@ describe('cache vuex action', () => {
     moduleASpy = jest.fn(() => {
       return Promise.resolve()
     })
-
-    const moduleA = {
-      state: {
-        members: [],
-      },
-      mutations: {
-        MODULEA_ADD_MEMBER(state, payload) {
-          state.members.push(payload)
-        },
-      },
-      actions: {
-        MODULEA_ADD_MEMBER({ commit }, value) {
-          return moduleASpy().then(() => {
-            commit('MODULEA_ADD_MEMBER', value)
-          })
-        },
-      },
-    }
-    store = new Vuex.Store({
-      state: {
-        list: [],
-        name: '',
-      },
-
-      plugins: [vuexCache],
-
-      mutations: {
-        LIST(state, payload) {
-          state.list = payload
-        },
-        NAME(state, { name }) {
-          state.name = name
-        },
-      },
-
-      modules: {
-        moduleA,
-      },
-
-      actions: {
-        LIST({ commit }) {
-          listSpy().then(list => {
-            commit('LIST', list)
-          })
-        },
-        NAME({ commit }, name) {
-          commit('NAME', name)
-        },
-      },
-    })
+    store = new Vuex.Store(storeOption)
   })
 
   afterEach(() => {
@@ -274,6 +276,51 @@ describe('cache vuex action', () => {
       })
       await store.cache.dispatch('LIST', null, {
         timeout: 100,
+      })
+      expect(listSpy).toHaveBeenCalledTimes(2)
+    })
+
+    it('test default option for timeout', async () => {
+      store = new Vuex.Store({
+        ...storeOption,
+        plugins: [vuexCache({ timeout: 100 })]
+      })
+
+      await store.cache.dispatch('LIST', null)
+      await store.cache.dispatch('LIST', null)
+      expect(listSpy).toHaveBeenCalledTimes(1)
+      await sleep(110)
+      await store.cache.dispatch('LIST', null)
+      await store.cache.dispatch('LIST', null)
+      await sleep(50)
+      await store.cache.dispatch('LIST', null)
+      expect(listSpy).toHaveBeenCalledTimes(2)
+
+      await sleep(210)
+      await store.cache.dispatch('LIST', null)
+      await store.cache.dispatch('LIST', null)
+      await store.cache.dispatch('LIST', null)
+      expect(listSpy).toHaveBeenCalledTimes(3)
+    })
+
+    it('overwrite default timeout option on each dispatch', async () => {
+      store = new Vuex.Store({
+        ...storeOption,
+        plugins: [vuexCache({ timeout: 100 })]
+      })
+
+      await store.cache.dispatch('LIST', null, {
+        timeout: 200
+      })
+      await sleep(110)
+      await store.cache.dispatch('LIST', null, {
+        timeout: 200
+      })
+      expect(listSpy).toHaveBeenCalledTimes(1)
+
+      await sleep(100)
+      await store.cache.dispatch('LIST', null, {
+        timeout: 200
       })
       expect(listSpy).toHaveBeenCalledTimes(2)
     })

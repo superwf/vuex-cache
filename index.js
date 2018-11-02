@@ -1,5 +1,8 @@
 'use strict';
 
+const isVuexStore = obj =>
+  'dispatch' in obj && typeof obj.dispatch === 'function';
+
 // convert string or obj to string
 const toString = arg => (typeof arg === 'string' ? arg : JSON.stringify(arg));
 
@@ -13,17 +16,20 @@ const argsToString = args => {
 };
 
 // parse timeout prop in option
-const getTimeout = args => {
+const getTimeout = (args, option) => {
   if (args.length === 1 && args[0].timeout) {
     return args[0].timeout
   }
   if (args.length === 3 && args[2].timeout) {
     return args[2].timeout
   }
+  if (option && option.timeout) {
+    return option.timeout
+  }
   return 0
 };
 
-var index = store => {
+const cachePlugin = (store, option) => {
   const cache = new Map();
   // use another map to store timeout for each type
   const timeoutCache = new Map();
@@ -31,7 +37,7 @@ var index = store => {
   cache.dispatch = (...args) => {
     const type = argsToString(args);
 
-    const timeout = getTimeout(args);
+    const timeout = getTimeout(args, option);
     if (timeout) {
       const now = Date.now();
       if (!timeoutCache.has(type)) {
@@ -67,4 +73,11 @@ var index = store => {
   store.cache = cache;
 };
 
-module.exports = index;
+const resolveParams = args => {
+  if (!isVuexStore(args)) {
+    return store => cachePlugin(store, args)
+  }
+  return cachePlugin(args)
+};
+
+module.exports = resolveParams;

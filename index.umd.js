@@ -4,7 +4,11 @@
   (global['vuex-cache'] = factory());
 }(this, (function () { 'use strict';
 
-  // convert string or obj to string
+  var isVuexStore = function isVuexStore(obj) {
+    return 'dispatch' in obj && typeof obj.dispatch === 'function';
+  }; // convert string or obj to string
+
+
   var toString = function toString(arg) {
     return typeof arg === 'string' ? arg : JSON.stringify(arg);
   }; // convert arguments to string
@@ -21,7 +25,7 @@
   }; // parse timeout prop in option
 
 
-  var getTimeout = function getTimeout(args) {
+  var getTimeout = function getTimeout(args, option) {
     if (args.length === 1 && args[0].timeout) {
       return args[0].timeout;
     }
@@ -30,10 +34,14 @@
       return args[2].timeout;
     }
 
+    if (option && option.timeout) {
+      return option.timeout;
+    }
+
     return 0;
   };
 
-  var index = (function (store) {
+  var cachePlugin = function cachePlugin(store, option) {
     var cache = new Map(); // use another map to store timeout for each type
 
     var timeoutCache = new Map();
@@ -44,7 +52,7 @@
       }
 
       var type = argsToString(args);
-      var timeout = getTimeout(args);
+      var timeout = getTimeout(args, option);
 
       if (timeout) {
         var now = Date.now();
@@ -91,8 +99,18 @@
     };
 
     store.cache = cache;
-  });
+  };
 
-  return index;
+  var resolveParams = function resolveParams(args) {
+    if (!isVuexStore(args)) {
+      return function (store) {
+        return cachePlugin(store, args);
+      };
+    }
+
+    return cachePlugin(args);
+  };
+
+  return resolveParams;
 
 })));
