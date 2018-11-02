@@ -12,6 +12,9 @@
   "author": "superwf@gmail.com",
   "license": "MIT",
   "homepage": "https://github.com/superwf/vuex-cache",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "test": "NODE_ENV=test npx jest",
     "cover": "NODE_ENV=test npx jest --coverage",
