@@ -1,6 +1,6 @@
 {
   "name": "vuex-cache",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "cache vuex action",
   "cdn": "dist/vuex-cache.min.js",
   "main": "dist/vuex-cache.cjs.js",
