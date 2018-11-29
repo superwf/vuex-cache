@@ -78,4 +78,13 @@ const resolveParams = args => {
   return cachePlugin(args)
 }
 
+// expose plugin as default
 export default resolveParams
+
+// expose action enhancer
+export function cacheAction(action) {
+  return function cacheEnhancedAction(context, payload) {
+    cachePlugin(context)
+    return action(context, payload)
+  }
+}
