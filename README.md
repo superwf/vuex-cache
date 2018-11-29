@@ -8,7 +8,7 @@ update to use babel7 env to compile. If there is something wrong, please let me 
 
 #### 2018-10-11
 
-##### NEW FEATUE, add `timeout` option
+##### NEW FEATURE, add `timeout` option
 
 ```javascript
 store.cache.dispatch({
