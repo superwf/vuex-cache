@@ -1,13 +1,13 @@
 /*!
- * vuex-cache v1.4.0
+ * vuex-cache v2.0.0
  * (c) 2017-present superwf@gmail.com
  * Released under the MIT License.
  */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global.vuexCache = factory());
-}(this, (function () { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (factory((global.vuexCache = {})));
+}(this, (function (exports) { 'use strict';
 
   var isVuexStore = function isVuexStore(obj) {
     return 'dispatch' in obj && typeof obj.dispatch === 'function';
@@ -75,7 +75,11 @@
       }
 
       if (!cache.has(type)) {
-        cache.set(type, store.dispatch.apply(store, args));
+        var action = store.dispatch.apply(store, args).catch(function (error) {
+          cache.delete(type);
+          return Promise.reject(error);
+        });
+        cache.set(type, action);
       }
 
       return cache.get(type);
@@ -114,8 +118,18 @@
     }
 
     return cachePlugin(args);
-  };
+  }; // expose plugin as default
 
-  return resolveParams;
+  function cacheAction(action) {
+    return function cacheEnhancedAction(context, payload) {
+      cachePlugin(context);
+      return action(context, payload);
+    };
+  }
+
+  exports.default = resolveParams;
+  exports.cacheAction = cacheAction;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
