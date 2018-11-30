@@ -51,7 +51,12 @@ const cachePlugin = (store, option) => {
     }
 
     if (!cache.has(type)) {
-      cache.set(type, store.dispatch.apply(store, args))
+      const action = store.dispatch.apply(store, args).catch(error => {
+        cache.delete(type)
+        return Promise.reject(error)
+      })
+
+      cache.set(type, action)
     }
     return cache.get(type)
   }
