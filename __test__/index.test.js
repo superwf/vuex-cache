@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import vuexCache from '../src'
+import vuexCache, { cacheAction } from '../src'
 
 Vue.use(Vuex)
 
@@ -56,6 +56,12 @@ describe('cache vuex action', () => {
       NAME({ commit }, name) {
         commit('NAME', name)
       },
+      ENHANCED_ACTION_TEST: cacheAction(context => {
+        context.cache.dispatch('LIST', 1, 2)
+        expect(listSpy.mock.calls).toHaveLength(1)
+        context.cache.dispatch('LIST')
+        expect(listSpy.mock.calls).toHaveLength(2)
+      }),
     },
   }
 
@@ -72,6 +78,17 @@ describe('cache vuex action', () => {
 
   afterEach(() => {
     jest.restoreAllMocks()
+  })
+
+  it('is bound to action context', done => {
+    const dispatchSpy = jest.spyOn(store, 'dispatch')
+    store.dispatch('ENHANCED_ACTION_TEST')
+    expect(dispatchSpy).toHaveBeenCalledWith('ENHANCED_ACTION_TEST')
+
+    Vue.nextTick(() => {
+      expect(store.state.list).toEqual(result)
+      done()
+    })
   })
 
   it('cache action', done => {
