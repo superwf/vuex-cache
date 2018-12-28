@@ -10,6 +10,13 @@
   "umd:main": "dist/vuex-cache.js",
   "repository": "superwf/vuex-cache",
   "author": "superwf@gmail.com",
+  "contributors": [
+    {
+      "url": "https://vitorluizc.github.io/",
+      "name": "Vitor Luiz Cavalcanti",
+      "email": "vitorluizc@outlook.com"
+    }
+  ],
   "license": "MIT",
   "homepage": "https://github.com/superwf/vuex-cache",
   "files": [
@@ -58,12 +65,6 @@
     ],
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "jsx",
-      "node"
-    ]
+    }
   }
 }
