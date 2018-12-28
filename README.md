@@ -1,12 +1,22 @@
-# vuex cache action
+# vuex-cache
 
 When vuex action fetch some data by request remote api, vuex-cache can store the action result, when next time the same action runs, it will not make a new request and just return the cached result.
 
-#### 2018-09-21
+## Compatibility
 
-update to use babel7 env to compile. If there is something wrong, please let me know by issue.
+- Any Vue version, since `vuex-cache` just deals with Vuex;
+- Vuex versions 1, 2 and 3.
 
-#### 2018-10-11
+## Installation
+
+`vuex-cache` is published in the NPM registry and can be installed using any compatible package manager.
+
+```sh
+npm install vuex-cache --save
+
+# Use the command below if you're using Yarn.
+yarn add vuex-cache
+```
 
 ##### NEW FEATURE, add `timeout` option
 
@@ -56,15 +66,6 @@ const store = new Vuex.Store({
 ```
 
 the default timeout could be overwrite by each dispatch revoke.
-
-### Compatibility
-- Any Vue version, since `vuex-cache` just deals with Vuex
-- Vuex versions 1, 2 and 3
-
-### install
-```bash
-npm install vuex-cache
-```
 
 ### usage
 
