@@ -16,42 +16,37 @@
     "dist/"
   ],
   "scripts": {
-    "test": "NODE_ENV=test npx jest",
-    "cover": "NODE_ENV=test npx jest --coverage",
-    "lint": "npx eslint src/index.js",
+    "test": "jest",
+    "cover": "jest --coverage",
+    "lint": "eslint src/index.js",
     "build": "bili src/index.js --format es,cjs,umd,umd-min --banner",
-    "prepublish": "npm run lint && npm run cover && npm run build"
+    "prepublish": "yarn lint && yarn build && yarn cover"
   },
   "keywords": [
     "vuex",
     "cache"
   ],
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.0",
-    "@babel/plugin-proposal-class-properties": "^7.0.0",
-    "@babel/plugin-proposal-decorators": "^7.0.0",
-    "@babel/plugin-proposal-export-default-from": "^7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-stage-0": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.0.0",
-    "babel-7-jest": "^21.3.3",
-    "babel-eslint": "^9.0.0",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "bili": "^3.3.0",
-    "eslint": "^5.3.0",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-config-standard": "^7.0.1",
-    "eslint-plugin-jest": "^21.17.0",
-    "eslint-plugin-prettier": "^3.0.0",
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-transform-runtime": "^7.2.0",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/runtime": "^7.2.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.6.0",
+    "bili": "^3.4.2",
+    "eslint": "^5.11.1",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^22.1.2",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^2.1.1",
-    "jest": "^23.1.0",
-    "prettier": "^1.13.5",
-    "vue": "^2.5.17",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^23.6.0",
+    "prettier": "^1.15.3",
+    "vue": "^2.5.21",
     "vuex": "^3.0.1"
   },
   "jest": {
@@ -62,7 +57,7 @@
       "<rootDir>/__test__/**/?(*.)(spec|test).js"
     ],
     "transform": {
-      "^.+\\.js$": "<rootDir>/node_modules/babel-7-jest"
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest"
     },
     "moduleFileExtensions": [
       "js",
