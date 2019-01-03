@@ -27,7 +27,7 @@ describe('cache vuex action', () => {
         return moduleASpy().then(() => {
           return Promise.reject(new Error('an unknow error'))
         })
-      }
+      },
     },
   }
 
@@ -239,13 +239,12 @@ describe('cache vuex action', () => {
   })
 
   it('delete action from cache on rejection', done => {
-    store.cache.dispatch('MODULEA_THROW_ERROR')
-      .catch((error) => {
-        expect(error.message).toBe('an unknow error')
-        expect(store.cache.has('MODULEA_THROW_ERROR')).toBe(false)
-        expect(moduleASpy).toHaveBeenCalledTimes(1)
-        done()
-      })
+    store.cache.dispatch('MODULEA_THROW_ERROR').catch(error => {
+      expect(error.message).toBe('an unknow error')
+      expect(store.cache.has('MODULEA_THROW_ERROR')).toBe(false)
+      expect(moduleASpy).toHaveBeenCalledTimes(1)
+      done()
+    })
   })
 
   describe('add timeout configuration', () => {
@@ -315,7 +314,7 @@ describe('cache vuex action', () => {
     it('test default option for timeout', async () => {
       store = new Vuex.Store({
         ...storeOption,
-        plugins: [vuexCache({ timeout: 100 })]
+        plugins: [vuexCache({ timeout: 100 })],
       })
 
       await store.cache.dispatch('LIST', null)
@@ -338,21 +337,21 @@ describe('cache vuex action', () => {
     it('overwrite default timeout option on each dispatch', async () => {
       store = new Vuex.Store({
         ...storeOption,
-        plugins: [vuexCache({ timeout: 100 })]
+        plugins: [vuexCache({ timeout: 100 })],
       })
 
       await store.cache.dispatch('LIST', null, {
-        timeout: 200
+        timeout: 200,
       })
       await sleep(110)
       await store.cache.dispatch('LIST', null, {
-        timeout: 200
+        timeout: 200,
       })
       expect(listSpy).toHaveBeenCalledTimes(1)
 
       await sleep(100)
       await store.cache.dispatch('LIST', null, {
-        timeout: 200
+        timeout: 200,
       })
       expect(listSpy).toHaveBeenCalledTimes(2)
     })

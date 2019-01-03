@@ -1,6 +1,6 @@
 /*!
- * vuex-cache v2.0.0
- * (c) 2017-present superwf@gmail.com
+ * vuex-cache v2.1.0
+ * (c) 2018-present superwf@gmail.com
  * Released under the MIT License.
  */
 (function (global, factory) {
