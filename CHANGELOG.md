@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## 2.1.0
+
+- Improve documentation.
+  - Fix title on `README.md`;
+  - Add `CHANGELOG` file.
+  - Improve **Compatibility**, **Installation** sections and move them up on `README.md`.
+
+  This is part of a pretty big docs improvement suggested by [@vjee](https://github.com/vjee) on issue [#21](https://github.com/superwf/vuex-cache/pull/21).
+
+- Add [@VitorLuizC](https://github.com/VitorLuizC) to contributors on package.
+
+- Upgrade dependencies.
+
+- Remove unused `babel`, `eslint` and `jest` plugins.
+
+- Improve bundle, test and lint
+  - Remove comments and unused env on `.eslintrc.js`.
+  - Remove unused env and plugins on `babel.config.js`.
+  - Delete `.eslintignore` file.
+  - Enforce Yarn and on package scripts.
+  - Remove `npx` and `NODE_ENV` assignment on package scripts.
+
 ## 2.0.0
 
 - **Breaking Change**: Actions that throw error, or that returns a promise rejection, will no longer be added to the cache.
