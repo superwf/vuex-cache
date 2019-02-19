@@ -14,8 +14,44 @@ When vuex action fetch some data by request remote api, vuex-cache can store the
 ```sh
 npm install vuex-cache --save
 
-# Use the command below if you're using Yarn.
+# For Yarn use the command below.
 yarn add vuex-cache
+```
+
+### Installation on [Nuxt.js](https://github.com/nuxt/nuxt.js)
+
+> Only use it if you're not using [Classic Mode](https://nuxtjs.org/guide/vuex-store#classic-mode).
+
+Create a module on plugins to setup `vuex-cache`. Call `vuex-cache` with your options, then call returned value with store on `onNuxtReady` event.
+
+**`~/plugins/vuex-cache.js`**
+
+```js
+import createVuexCache from 'vuex-cache';
+
+export default ({ store }) => {
+  const options = {
+    timeout: 2 * 60 * 60 * 1000 // Equal to 2 hours in milliseconds.
+  };
+
+  const setupVuexCache = createVuexCache(options);
+
+  window.onNuxtReady(() => setupVuexCache(store));
+};
+```
+
+Then just add this plugin to your nuxt configuration. Like the example below.
+
+**`~/nuxt.config.js`**
+
+```js
+module.exports = {
+  ...,
+  plugins: [
+    ...,
+    { src: '~/plugins/vuex-cache.js', ssr: false },
+  ]
+};
 ```
 
 ##### NEW FEATURE, add `timeout` option
