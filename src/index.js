@@ -1,16 +1,40 @@
-const isVuexStore = obj =>
-  'dispatch' in obj && typeof obj.dispatch === 'function'
+/**
+ * Check if value is an object.
+ * @param {any} value
+ * @returns {value is Object}
+ */
+const isObject = value => !!value && typeof value === 'object'
 
-// convert string or obj to string
-const toString = arg => (typeof arg === 'string' ? arg : JSON.stringify(arg))
+/**
+ * Check if value is a Store.
+ * @param {any} value
+ * @returns {value is import('vuex').Store<any>}
+ */
+const isStore = value => isObject(value) && typeof value.dispatch === 'function'
 
-// convert arguments to string
-const argsToString = args => {
-  let type = toString(args[0])
-  if (args[1]) {
-    type = `${type}:${toString(args[1])}`
-  }
-  return type
+/**
+ * Convert value to `string`.
+ * @param {any} value
+ * @returns {string}
+ */
+const toString = value =>
+  isObject(value) ? JSON.stringify(value) : String(value)
+
+/**
+ * Type alias for Dispatch parameters.
+ * @typedef {[string, any?, import('vuex').DispatchOptions?]|[import('vuex').Payload, import('vuex').DispatchOptions?]} DispatchParams
+ */
+
+/**
+ * Generate key from Dispatch parameters.
+ * @param {DispatchParams} params
+ * @returns {string}
+ */
+const generateKey = params => {
+  const isPayload = typeof params[0] !== 'string'
+  const type = isPayload ? params[0].type : params[0]
+  const payload = isPayload ? params[0] : params[1]
+  return `${type}:${toString(payload)}`
 }
 
 // parse timeout prop in option
@@ -32,10 +56,10 @@ const cachePlugin = (store, option) => {
   // use another map to store timeout for each type
   const timeoutCache = new Map()
 
-  cache.dispatch = (...args) => {
-    const type = argsToString(args)
+  cache.dispatch = (...params) => {
+    const type = generateKey(params)
 
-    const timeout = getTimeout(args, option)
+    const timeout = getTimeout(params, option)
     if (timeout) {
       const now = Date.now()
       if (!timeoutCache.has(type)) {
@@ -51,7 +75,7 @@ const cachePlugin = (store, option) => {
     }
 
     if (!cache.has(type)) {
-      const action = store.dispatch.apply(store, args).catch(error => {
+      const action = store.dispatch.apply(store, params).catch(error => {
         cache.delete(type)
         return Promise.reject(error)
       })
@@ -62,14 +86,14 @@ const cachePlugin = (store, option) => {
   }
 
   const _has = cache.has.bind(cache)
-  cache.has = (...args) => {
-    const key = argsToString(args)
+  cache.has = (...params) => {
+    const key = generateKey(params)
     return _has(toString(key))
   }
 
   const _delete = cache.delete.bind(cache)
-  cache.delete = (...args) => {
-    const key = argsToString(args)
+  cache.delete = (...params) => {
+    const key = generateKey(params)
     return _delete(toString(key))
   }
 
@@ -77,7 +101,7 @@ const cachePlugin = (store, option) => {
 }
 
 const resolveParams = args => {
-  if (!isVuexStore(args)) {
+  if (!isStore(args)) {
     return store => cachePlugin(store, args)
   }
   return cachePlugin(args)
