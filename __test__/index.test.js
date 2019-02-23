@@ -110,21 +110,6 @@ describe('cache vuex action', () => {
     })
   })
 
-  it('remove cache return true', () => {
-    store.cache.dispatch('LIST')
-    expect(listSpy.mock.calls).toHaveLength(1)
-    expect(store.cache.delete('LIST')).toBe(true)
-    expect(store.cache.delete('LIST')).toBe(false)
-    store.cache.dispatch('LIST')
-    expect(listSpy.mock.calls).toHaveLength(2)
-    store.cache.dispatch('LIST')
-    expect(listSpy.mock.calls).toHaveLength(2)
-  })
-
-  it('remove cache not exist, return false', () => {
-    expect(store.cache.delete('NO_TYPE')).toBe(false)
-  })
-
   it('clear all cache', () => {
     const name = 'abc'
     store.cache.dispatch('LIST')
@@ -150,34 +135,6 @@ describe('cache vuex action', () => {
       payload: 2,
     })
     expect(listSpy.mock.calls).toHaveLength(2)
-  })
-
-  it('delete cache with object', () => {
-    store.cache.dispatch({
-      type: 'LIST',
-      page: 1,
-    })
-    expect(listSpy.mock.calls).toHaveLength(1)
-    expect(
-      store.cache.delete({
-        type: 'LIST',
-        page: 1,
-      }),
-    ).toBe(true)
-    expect(
-      store.cache.delete({
-        type: 'LIST',
-        page: 1,
-      }),
-    ).toBe(false)
-  })
-
-  it('delete cache with two params', () => {
-    store.cache.dispatch('LIST', 1)
-    expect(listSpy.mock.calls).toHaveLength(1)
-    expect(store.cache.has('LIST', 1)).toBe(true)
-    expect(store.cache.delete('LIST', 1)).toBe(true)
-    expect(store.cache.delete('LIST', 1)).toBe(false)
   })
 
   it('has/clear cache with object', () => {
