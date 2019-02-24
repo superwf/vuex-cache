@@ -1,29 +1,16 @@
 import Vue from 'vue'
-import Vuex, { Store } from 'vuex'
-import createCache from '../src/index.js'
+import Vuex from 'vuex'
+import { createStore } from './helpers'
 
 beforeAll(() => {
   Vue.use(Vuex)
 })
 
-const createStore = (actions = {}) =>
-  new Store({ plugins: [createCache({})], actions })
+beforeEach(() => {
+  createStore().cache.clear()
+})
 
 describe('store.cache.delete', () => {
-  it('remove action from cache', () => {
-    const store = createStore({
-      ACTION: () => {},
-    })
-
-    store.cache.dispatch('ACTION')
-
-    expect(store.cache.get('ACTION:undefined')).toBeInstanceOf(Promise)
-
-    store.cache.delete('ACTION')
-
-    expect(store.cache.get('ACTION:undefined')).toBe(undefined)
-  })
-
   it("returns false if there's no action to delete", () => {
     const store = createStore()
 
@@ -51,9 +38,17 @@ describe('store.cache.delete', () => {
 
     expect(store.cache.delete('ACTION')).toBe(true)
 
-    await store.cache.dispatch('ACTION', 10)
+    await store.cache.dispatch({
+      type: 'ACTION',
+      quantity: 10,
+    })
 
-    expect(store.cache.delete('ACTION', 10)).toBe(true)
+    expect(
+      store.cache.delete({
+        type: 'ACTION',
+        quantity: 10,
+      }),
+    ).toBe(true)
   })
 
   it("returns false if params don't match cached ones", async () => {
