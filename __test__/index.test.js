@@ -23,11 +23,6 @@ describe('cache vuex action', () => {
           commit('MODULEA_ADD_MEMBER', value)
         })
       },
-      MODULEA_THROW_ERROR() {
-        return moduleASpy().then(() => {
-          return Promise.reject(new Error('an unknow error'))
-        })
-      },
     },
   }
 
@@ -195,13 +190,28 @@ describe('cache vuex action', () => {
     })
   })
 
-  it('delete action from cache on rejection', done => {
-    store.cache.dispatch('MODULEA_THROW_ERROR').catch(error => {
-      expect(error.message).toBe('an unknow error')
-      expect(store.cache.has('MODULEA_THROW_ERROR')).toBe(false)
-      expect(moduleASpy).toHaveBeenCalledTimes(1)
-      done()
+  test('delete action from cache on rejection', async () => {
+    const store = new Vuex.Store({
+      plugins: [vuexCache],
+      actions: {
+        A() {
+          throw new Error('An unknown error.')
+        },
+      },
     })
+
+    let error
+
+    try {
+      const action = store.cache.dispatch('A')
+      expect(store.cache.has('A')).toBe(true)
+      await action
+    } catch (e) {
+      error = e
+    }
+
+    expect(store.cache.has('A')).toBe(false)
+    expect(error).toEqual(new Error('An unknown error.'))
   })
 
   describe('add timeout configuration', () => {
