@@ -91,7 +91,7 @@ const resolveTimeout = (params, pluginOptions) => {
  * @param {number} [expiresIn]
  * @returns {boolean}
  */
-const isExpired = expiresIn => !!expiresIn || Date.now() < expiresIn
+const isExpired = expiresIn => !!expiresIn && Date.now() > expiresIn
 
 /**
  * Cache's state record.
@@ -135,9 +135,8 @@ const defineCache = (store, options) => {
     },
 
     has(...params) {
-      const key = generateKey(params)
-      const record = state.get(key)
-      return !!record && isExpired(record.expiresIn)
+      const record = state.get(generateKey(params))
+      return isObject(record) && !isExpired(record.expiresIn)
     },
 
     clear() {
