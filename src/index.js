@@ -54,17 +54,25 @@ const generateKey = params => {
 }
 
 /**
- * Resolve timeout from parameters.
+ * Check if value has timeout property.
+ * @param {any} value
+ * @returns {value is { timeout: number }}
+ */
+const hasTimeout = value => !!value && typeof value.timeout === 'string'
+
+/**
+ * Resolve timeout from parameters and plugin options.
  * @param {DispatchParams} params
  * @param {{ timeout?: number }} pluginOptions
  * @returns {number}
  */
 const resolveTimeout = (params, pluginOptions) => {
-  const [, , dispatchOptions] = resolveParams(params)
-  if (dispatchOptions && typeof dispatchOptions.timeout === 'number')
+  const dispatchOptions = typeof params[0] === 'string' ? params[2] : params[0]
+  if (hasTimeout(dispatchOptions)) {
     return dispatchOptions.timeout
-  if (pluginOptions && typeof pluginOptions.timeout === 'number')
+  } else if (hasTimeout(pluginOptions)) {
     return pluginOptions.timeout
+  }
   return 0
 }
 
@@ -85,17 +93,17 @@ const cachePlugin = (store, option) => {
         const timeoutOfCurrentType = timeoutCache.get(key)
         // console.log(now - timeout, timeoutOfCurrentType)
         if (now - timeout > timeoutOfCurrentType) {
-          cache.delete(key)
+          cache.delete(...params)
           timeoutCache.delete(key)
         }
       }
     }
 
-    if (!cache.has(key)) {
+    if (!cache.has(...params)) {
       const action = store.dispatch.apply(store, params)
 
       action.catch(error => {
-        cache.delete(key)
+        cache.delete(...params)
         return Promise.reject(error)
       })
 
