@@ -58,7 +58,7 @@ const generateKey = params => {
  * @param {any} value
  * @returns {value is { timeout: number }}
  */
-const hasTimeout = value => !!value && typeof value.timeout === 'string'
+const hasTimeout = value => isObject(value) && typeof value.timeout === 'number'
 
 /**
  * Resolve timeout from parameters and plugin options.
