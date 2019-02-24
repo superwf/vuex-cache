@@ -21,9 +21,27 @@ const toString = value =>
   isObject(value) ? JSON.stringify(value) : String(value)
 
 /**
- * Type alias for Dispatch parameters.
- * @typedef {[string, any?, import('vuex').DispatchOptions?]|[import('vuex').Payload, import('vuex').DispatchOptions?]} DispatchParams
+ * Dispatch's options object.
+ * @typedef {import('vuex').DispatchOptions & { timeout: number }} DispatchOptions
  */
+
+/**
+ * Dispatch's payload object.
+ * @typedef {import('vuex').Payload & { timeout: number }} Payload
+ */
+
+/**
+ * Type alias for Dispatch parameters.
+ * @typedef {[string, any?, DispatchOptions?]|[Payload, DispatchOptions?]} DispatchParams
+ */
+
+/**
+ * Resolve Dispatch parameters.
+ * @param {DispatchParams} params
+ * @returns {[string, Payload?, DispatchOptions?]}
+ */
+const resolveParams = params =>
+  isObject(params[0]) ? [params[0].type, params[0], params[1]] : params
 
 /**
  * Generate key from Dispatch parameters.
@@ -31,23 +49,22 @@ const toString = value =>
  * @returns {string}
  */
 const generateKey = params => {
-  const isPayload = typeof params[0] !== 'string'
-  const type = isPayload ? params[0].type : params[0]
-  const payload = isPayload ? params[0] : params[1]
+  const [type, payload] = resolveParams(params)
   return `${type}:${toString(payload)}`
 }
 
-// parse timeout prop in option
-const getTimeout = (args, option) => {
-  if (args.length === 1 && args[0].timeout) {
-    return args[0].timeout
-  }
-  if (args.length === 3 && args[2].timeout) {
-    return args[2].timeout
-  }
-  if (option && option.timeout) {
-    return option.timeout
-  }
+/**
+ * Resolve timeout from parameters.
+ * @param {DispatchParams} params
+ * @param {{ timeout?: number }} pluginOptions
+ * @returns {number}
+ */
+const resolveTimeout = (params, pluginOptions) => {
+  const [, , dispatchOptions] = resolveParams(params)
+  if (dispatchOptions && typeof dispatchOptions.timeout === 'number')
+    return dispatchOptions.timeout
+  if (pluginOptions && typeof pluginOptions.timeout === 'number')
+    return pluginOptions.timeout
   return 0
 }
 
@@ -57,58 +74,59 @@ const cachePlugin = (store, option) => {
   const timeoutCache = new Map()
 
   cache.dispatch = (...params) => {
-    const type = generateKey(params)
+    const key = generateKey(params)
 
-    const timeout = getTimeout(params, option)
+    const timeout = resolveTimeout(params, option)
     if (timeout) {
       const now = Date.now()
-      if (!timeoutCache.has(type)) {
-        timeoutCache.set(type, now)
+      if (!timeoutCache.has(key)) {
+        timeoutCache.set(key, now)
       } else {
-        const timeoutOfCurrentType = timeoutCache.get(type)
+        const timeoutOfCurrentType = timeoutCache.get(key)
         // console.log(now - timeout, timeoutOfCurrentType)
         if (now - timeout > timeoutOfCurrentType) {
-          cache.delete(type)
-          timeoutCache.delete(type)
+          cache.delete(key)
+          timeoutCache.delete(key)
         }
       }
     }
 
-    if (!cache.has(type)) {
-      const action = store.dispatch.apply(store, params).catch(error => {
-        cache.delete(type)
+    if (!cache.has(key)) {
+      const action = store.dispatch.apply(store, params)
+
+      action.catch(error => {
+        cache.delete(key)
         return Promise.reject(error)
       })
 
-      cache.set(type, action)
+      cache.set(key, action)
     }
-    return cache.get(type)
+
+    return cache.get(key)
   }
 
   const _has = cache.has.bind(cache)
   cache.has = (...params) => {
-    const key = generateKey(params)
-    return _has(toString(key))
+    return _has(generateKey(params))
   }
 
   const _delete = cache.delete.bind(cache)
   cache.delete = (...params) => {
-    const key = generateKey(params)
-    return _delete(toString(key))
+    return _delete(generateKey(params))
   }
 
   store.cache = cache
 }
 
-const resolveParams = args => {
-  if (!isStore(args)) {
-    return store => cachePlugin(store, args)
+const createCache = storeOrOptions => {
+  if (isStore(storeOrOptions)) {
+    return cachePlugin(storeOrOptions)
   }
-  return cachePlugin(args)
+  return store => cachePlugin(store, storeOrOptions)
 }
 
 // expose plugin as default
-export default resolveParams
+export default createCache
 
 // expose action enhancer
 export function cacheAction(action) {
