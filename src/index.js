@@ -6,9 +6,14 @@
 const isObject = value => !!value && typeof value === 'object'
 
 /**
+ * Type alias for Store or ActionContext instances.
+ * @typedef {import('vuex').Store<any> | import('vuex').ActionContext<any, any>} Store
+ */
+
+/**
  * Check if value is a Store.
  * @param {any} value
- * @returns {value is import('vuex').Store<any>}
+ * @returns {value is Store}
  */
 const isStore = value => isObject(value) && typeof value.dispatch === 'function'
 
@@ -61,9 +66,14 @@ const generateKey = params => {
 const hasTimeout = value => isObject(value) && typeof value.timeout === 'number'
 
 /**
+ * Type alias for options object.
+ * @typedef {{ timeout?: number }} Options
+ */
+
+/**
  * Resolve timeout from parameters and plugin options.
  * @param {DispatchParams} params
- * @param {{ timeout?: number }} pluginOptions
+ * @param {Options} [pluginOptions]
  * @returns {number}
  */
 const resolveTimeout = (params, pluginOptions) => {
@@ -76,61 +86,83 @@ const resolveTimeout = (params, pluginOptions) => {
   return 0
 }
 
-const cachePlugin = (store, option) => {
-  const cache = new Map()
-  // use another map to store timeout for each type
-  const timeoutCache = new Map()
+/**
+ * Check if value (time) is expired.
+ * @param {number} [expiresIn]
+ * @returns {boolean}
+ */
+const isExpired = expiresIn => !!expiresIn || Date.now() < expiresIn
 
-  cache.dispatch = (...params) => {
-    const key = generateKey(params)
+/**
+ * Cache's state record.
+ * @typedef {{ expiresIn?: number, value: Promise<any> }} CacheRecord
+ */
 
-    const timeout = resolveTimeout(params, option)
-    if (timeout) {
-      const now = Date.now()
-      if (!timeoutCache.has(key)) {
-        timeoutCache.set(key, now)
-      } else {
-        const timeoutOfCurrentType = timeoutCache.get(key)
-        // console.log(now - timeout, timeoutOfCurrentType)
-        if (now - timeout > timeoutOfCurrentType) {
-          cache.delete(...params)
-          timeoutCache.delete(key)
-        }
+/**
+ * Cache's state.
+ * @type {Map<string, CacheRecord>}
+ */
+const state = new Map()
+
+/**
+ * Define cache property to store, or action context, object.
+ * @param {Store} store
+ * @param {Options} [options]
+ */
+const defineCache = (store, options) => {
+  const cache = {
+    dispatch(...params) {
+      const key = generateKey(params)
+      const { value, expiresIn } = state.get(key) || {}
+
+      if (!!value && !isExpired(expiresIn)) {
+        return value
       }
-    }
 
-    if (!cache.has(...params)) {
-      const action = store.dispatch.apply(store, params)
+      const timeout = resolveTimeout(params, options)
 
-      action.catch(error => {
-        cache.delete(...params)
+      const record = {
+        expiresIn: timeout ? Date.now() + timeout : undefined,
+        value: store.dispatch.apply(store, params),
+      }
+
+      state.set(key, record)
+
+      return record.value.catch(error => {
+        state.delete(key)
         return Promise.reject(error)
       })
+    },
 
-      cache.set(key, action)
-    }
+    has(...params) {
+      const key = generateKey(params)
+      const record = state.get(key)
+      return !!record && isExpired(record.expiresIn)
+    },
 
-    return cache.get(key)
+    clear() {
+      return state.clear()
+    },
+
+    delete(...params) {
+      const key = generateKey(params)
+      return state.delete(key)
+    },
   }
 
-  const _has = cache.has.bind(cache)
-  cache.has = (...params) => {
-    return _has(generateKey(params))
-  }
-
-  const _delete = cache.delete.bind(cache)
-  cache.delete = (...params) => {
-    return _delete(generateKey(params))
-  }
-
-  store.cache = cache
+  Object.defineProperty(store, 'cache', {
+    value: cache,
+    writable: false,
+    enumerable: true,
+    configurable: false,
+  })
 }
 
 const createCache = storeOrOptions => {
   if (isStore(storeOrOptions)) {
-    return cachePlugin(storeOrOptions)
+    return defineCache(storeOrOptions)
   }
-  return store => cachePlugin(store, storeOrOptions)
+  return store => defineCache(store, storeOrOptions)
 }
 
 // expose plugin as default
@@ -139,7 +171,7 @@ export default createCache
 // expose action enhancer
 export function cacheAction(action) {
   return function cacheEnhancedAction(context, payload) {
-    cachePlugin(context)
+    defineCache(context)
     return action(context, payload)
   }
 }
