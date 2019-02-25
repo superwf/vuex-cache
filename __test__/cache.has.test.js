@@ -54,7 +54,7 @@ describe('store.cache.has', () => {
 
     expect(store.cache.has('ACTION')).toBe(false)
 
-    store.cache.dispatch('ACTION')
+    await store.cache.dispatch('ACTION')
 
     expect(store.cache.has('ACTION')).toBe(true)
 
