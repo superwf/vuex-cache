@@ -111,13 +111,13 @@ describe('timeout option', () => {
 
     await sleep(100)
 
-    expect(wasCalledTimes).toHaveBeenCalledTimes(1)
+    expect(wasCalledTimes).toBe(1)
 
     await store.cache.dispatch('A', undefined, {
       timeout: 200,
     })
 
-    expect(wasCalledTimes).toHaveBeenCalledTimes(1)
+    expect(wasCalledTimes).toBe(1)
 
     await sleep(100) // 100 + 100 = 200
 
@@ -125,6 +125,6 @@ describe('timeout option', () => {
       timeout: 200,
     })
 
-    expect(wasCalledTimes).toHaveBeenCalledTimes(2)
+    expect(wasCalledTimes).toBe(2)
   })
 })
