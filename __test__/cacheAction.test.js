@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex, { Store } from 'vuex'
-import createCache, { cacheAction } from '../src'
+import createCache, { cacheAction } from '../src/vuex-cache.js'
 
 beforeAll(() => {
   Vue.use(Vuex)

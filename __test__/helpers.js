@@ -1,5 +1,5 @@
 import { Store } from 'vuex'
-import createCache from '../src/index.js'
+import createCache from '../src/vuex-cache.js'
 
 export const createStore = (actions = {}) => createStoreWithTimeout(0, actions)
 

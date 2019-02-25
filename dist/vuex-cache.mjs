@@ -3,10 +3,6 @@
  * (c) superwf@gmail.com
  * Released under the MIT License.
  */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
 /**
  * Check if value is an object.
  * @param {any} value
@@ -219,5 +215,5 @@ var cacheAction = function (action, options) { return function (context, payload
 
 var createCache = function (options) { return function (store) { return defineCache(store, options); }; };
 
-exports.cacheAction = cacheAction;
-exports.default = createCache;
+export default createCache;
+export { cacheAction };

@@ -2,12 +2,12 @@
   "name": "vuex-cache",
   "version": "2.1.0",
   "description": "cache vuex action",
-  "cdn": "dist/vuex-cache.min.js",
-  "main": "dist/vuex-cache.cjs.js",
-  "unpkg": "dist/vuex-cache.min.js",
-  "module": "dist/vuex-cache.es.js",
-  "jsdelivr": "dist/vuex-cache.min.js",
-  "umd:main": "dist/vuex-cache.js",
+  "cdn": "dist/vuex-cache.umd.min.js",
+  "main": "dist/vuex-cache.js",
+  "unpkg": "dist/vuex-cache.umd.min.js",
+  "module": "dist/vuex-cache.mjs",
+  "jsdelivr": "dist/vuex-cache.umd.min.js",
+  "umd:main": "dist/vuex-cache.umd.js",
   "repository": "superwf/vuex-cache",
   "author": "superwf@gmail.com",
   "contributors": [
@@ -25,8 +25,8 @@
   "scripts": {
     "test": "jest",
     "cover": "jest --coverage",
-    "lint": "eslint src/index.js",
-    "build": "bili src/index.js --format es,cjs,umd,umd-min --banner --module-name VuexCache",
+    "lint": "eslint src/vuex-cache.js",
+    "build": "bili src/vuex-cache.js --format es,cjs,umd,umd-min --module-name VuexCache --minimal --banner",
     "prepublish": "yarn lint && yarn build && yarn cover"
   },
   "keywords": [
