@@ -11,13 +11,6 @@ const isObject = value => !!value && typeof value === 'object'
  */
 
 /**
- * Check if value is a Store.
- * @param {any} value
- * @returns {value is Store}
- */
-const isStore = value => isObject(value) && typeof value.dispatch === 'function'
-
-/**
  * Convert value to `string`.
  * @param {any} value
  * @returns {string}
@@ -111,6 +104,11 @@ const state = new Map()
  */
 const defineCache = (store, options) => {
   const cache = {
+    /**
+     * Dispatch an action and set it on cache.
+     * @param  {...DispatchParams} params
+     * @returns {Promise<any>}
+     */
     dispatch(...params) {
       const key = generateKey(params)
       const { value, expiresIn } = state.get(key) || {}
@@ -134,15 +132,29 @@ const defineCache = (store, options) => {
       })
     },
 
+    /**
+     * Check if an action dispatch is on cache.
+     * @param  {...DispatchParams} params
+     * @returns {boolean}
+     */
     has(...params) {
       const record = state.get(generateKey(params))
       return isObject(record) && !isExpired(record.expiresIn)
     },
 
+    /**
+     * Clear cache. Returns `true` if cache was cleared and `false` otherwise.
+     * @returns {boolean}
+     */
     clear() {
       return state.clear()
     },
 
+    /**
+     * Detele an action dispatch from cache. Returns `true` if it was deleted
+     * and `false` otherwise.
+     * @returns {boolean}
+     */
     delete(...params) {
       const key = generateKey(params)
       return state.delete(key)
@@ -157,20 +169,31 @@ const defineCache = (store, options) => {
   })
 }
 
-const createCache = storeOrOptions => {
-  if (isStore(storeOrOptions)) {
-    return defineCache(storeOrOptions)
-  }
-  return store => defineCache(store, storeOrOptions)
-}
+/**
+ * Type alias for Action.
+ * @typedef {import('vuex').Action<any, any>} Action
+ */
 
-// expose plugin as default
+/**
+ * Create cache with options and define it on action context instance.
+ * @param {Action} action
+ * @param {Options} [options]
+ * @returns {Action}
+ */
+export const cacheAction = (action, options) => ({
+  root: action.root,
+  handler(context, payload) {
+    defineCache(context, options)
+    const handler = typeof action === 'function' ? action : action.handler
+    return handler(context, payload)
+  },
+})
+
+/**
+ * Create cache with options and define it on store instance.
+ * @param {Options} options
+ * @returns {(store: Store) => void}
+ */
+const createCache = options => store => defineCache(store, options)
+
 export default createCache
-
-// expose action enhancer
-export function cacheAction(action) {
-  return function cacheEnhancedAction(context, payload) {
-    defineCache(context)
-    return action(context, payload)
-  }
-}
