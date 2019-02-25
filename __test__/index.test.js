@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import vuexCache, { cacheAction } from '../src'
+import createCache, { cacheAction } from '../src'
 
 Vue.use(Vuex)
 
@@ -32,7 +32,7 @@ describe('cache vuex action', () => {
       name: '',
     },
 
-    plugins: [vuexCache],
+    plugins: [createCache],
 
     mutations: {
       LIST(state, payload) {
@@ -103,17 +103,6 @@ describe('cache vuex action', () => {
       expect(store.state.list).toEqual(result)
       done()
     })
-  })
-
-  it('clear all cache', () => {
-    const name = 'abc'
-    store.cache.dispatch('LIST')
-    store.cache.dispatch('NAME', { name })
-    expect(store.cache.has('LIST')).toBe(true)
-    expect(store.cache.has('NAME', { name })).toBe(true)
-    store.cache.clear()
-    expect(store.cache.has('LIST')).toBe(false)
-    expect(store.cache.has('NAME', { name })).toBe(false)
   })
 
   it('cache object param', () => {
@@ -190,9 +179,9 @@ describe('cache vuex action', () => {
     })
   })
 
-  test('delete action from cache on rejection', async () => {
+  it('delete action from cache on rejection', async () => {
     const store = new Vuex.Store({
-      plugins: [vuexCache],
+      plugins: [createCache],
       actions: {
         A() {
           throw new Error('An unknown error.')
@@ -281,7 +270,7 @@ describe('cache vuex action', () => {
     it('test default option for timeout', async () => {
       store = new Vuex.Store({
         ...storeOption,
-        plugins: [vuexCache({ timeout: 100 })],
+        plugins: [createCache({ timeout: 100 })],
       })
 
       await store.cache.dispatch('LIST', null)
@@ -304,7 +293,7 @@ describe('cache vuex action', () => {
     it('overwrite default timeout option on each dispatch', async () => {
       store = new Vuex.Store({
         ...storeOption,
-        plugins: [vuexCache({ timeout: 100 })],
+        plugins: [createCache({ timeout: 100 })],
       })
 
       await store.cache.dispatch('LIST', null, {
