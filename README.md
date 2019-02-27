@@ -1,9 +1,10 @@
 # vuex-cache
 
-When vuex action fetch some data by request remote api, vuex-cache can store the action result, when next time the same action runs, it will not make a new request and just return the cached result.
+Cache dispatched actions and prevent repeated requests and heavy actions.
 
 ## Compatibility
 
+- `Map` and `Promise` are required (you can use polyfills, like [`@babel/polyfill`](https://babeljs.io/docs/en/babel-polyfill));
 - Any Vue version, since `vuex-cache` just deals with Vuex;
 - Vuex versions 1, 2 and 3.
 
@@ -16,6 +17,19 @@ npm install vuex-cache --save
 
 # For Yarn use the command below.
 yarn add vuex-cache
+```
+
+Import `createCache` factory and use on `Vuex`'s plugins.
+
+```js
+import Vue from 'vue';
+import Vuex, { Store } from 'vuex';
+import createCache from 'vuex-cache';
+
+const store = new Store({
+  plugins: [createCache()],
+  ...
+});
 ```
 
 ### Installation on [Nuxt.js](https://github.com/nuxt/nuxt.js)
@@ -54,149 +68,190 @@ module.exports = {
 };
 ```
 
-##### NEW FEATURE, add `timeout` option
+## Usage
 
-```javascript
-store.cache.dispatch({
-  type: ACTION_NAME,
-  timeout: 100,
-  payload: { ... }
-})
-// or
-store.cache.dispatch(ACTION_NAME, payload, {
-  timeout: 100,
-})
-```
+After install you can use `cache` property to call cache methods.
 
-after the `timeout` time, run `store.cache.dispatch(...)` will rerun the real dispatch code.
-
-##### NOTICE for `timeout` option
-
-Because the js execution also spends time, so the `timeout` maybe not very accurate for computer time. For example
-
-cache for 100 millisecond
-```javascript
-store.cache.dispatch({
-  type: ACTION_NAME,
-  timeout: 100,
-})
-```
-... after 99 millisecond
-
-```javascript
-store.cache.dispatch({
-  type: ACTION_NAME,
-  timeout: 100,
-})
-```
-In logic, the cache is not out of time, and the real dispatch should not run. But the `cache.dispatch` may cost 1 or more milliseconds for executing, so the real dispatch may or may __not__ execute.
-For human time, the precision should be enough.
-
-#### Add default timeout option when create the store
-
-```
-const store = new Vuex.Store({
-  plugins: [vuexCache({ timeout: 2000 })],
-  ...
-})
-```
-
-the default timeout could be overwrite by each dispatch revoke.
-
-### usage
-
-```javascript
-import Vuex from 'vuex'
-import vuexCache from 'vuex-cache'
-const store = new Vuex.Store({
-  state: {
-    ...
-  },
-
-  plugins: [vuexCache],
-
-  mutations: {
-    ...
-  },
-
+```js
+const store = new Store({
+  ...,
   actions: {
-    ...
+    'FETCH_USER': async (_, id) => {
+      const response = await fetch(baseURL + '/user/' + id);
+      const { users } = await response.json();
+      return users;
+    }
   }
+});
+
+store.cache.dispatch('FETCH_USER', 1);
+//=> Promise { User }
+```
+
+## API
+
+### `createCache`
+
+The default exported factory to create `Vuex`'s store plugin. It define `cache` property on Store instances.
+
+```js
+import { Store } from 'vuex';
+import createCache from 'vuex-cache';
+
+const store = new Store({
+  plugins: [
+    createCache()
+  ]
 })
-
-store.cache.dispatch('LIST')
 ```
 
-### api
+### `cacheAction`
 
-#### NOTICE: after update to 1.0.0, main api is different from the previous version 0.3.1
+A named exported function to enhance actions and define `cache` property on ActionContext instances.
 
-From version 1.0.0 your env should has **Map** object, or import **Map** from babel-polyfill
-Thanks [VitorLuizC](https://github.com/VitorLuizC)
+```js
+import { cacheAction } from 'vuex-cache';
 
-~~cacheDispatch will cache the result, so do **not** use it to make some actions with different params, when params change, cacheDispatch would still return the first cached result, and the data in store will not change.~~
-From version 1.1.0 it could cache ACTION\_NAME with or without params.
-Thanks the idea by [eele94](https://github.com/eele94)
+// ...
 
-NOTICE: When with object param, the param will be converted to JSON for the cache key, so be careful the object key order.
-Object with different key order will transfer to different JSON string, and will generate independent cache.
+const actions = {
+  'FETCH_STARGAZERS': cacheAction(
+    ({ cache, commit }, payload) => (
+      cache.dispatch('FETCH_REPOSITORIES')
+        .then((repos) => Promise.all(repos.map(getStargazers)))
+        .then((stargazers) => {
+          commit('STARGAZERS', [].concat(...stargazers));
+        })
+    )
+  ),
 
-```javascript
-JSON.stringify({a: 1, b: 2}) // '{"a":1,"b":2}'
-JSON.stringify({b: 2, a: 1}) // '{"b":1,"a":2}'
-```
-
-With or without param, cacheDispatch will create independent cache.
-When with object param like
-```javascript
-{
-  type: ACTION_NAME,
-  param: {...}
+  'SET_STARGAZERS': (context, payload) => { ... }
 }
 ```
-vuex-cache use JSON.stringify to generate the cache key, so the object do not must be the same object, just with same structure it will be dill with to the same cache.
 
+### `store.cache.dispatch`
 
-```javascript
-store.cache.dispatch(ACTION_NAME)
-// or
-store.cache.dispatch(ACTION_NAME, param)
-// or
+Dispatches an action if it's not cached and set it on cache, otherwise it returns cached `Promise`.
+
+> It uses action **name** and **payload** as cache key.
+
+```js
+store.cache.dispatch('user/GET_USER');
+//=> Promise { User }
+
+// Returns value without dispatching the action again.
+store.cache.dispatch('user/GET_USER');
+//=> Promise { User }
+```
+
+### `store.cache.has`
+
+Check if an action is cached. Returns `true` if action is cached and `false` otherwise.
+
+```js
+store.cache.has('user/GET_USER');
+//=> true
+
+store.cache.has('FETCH_REPOSITORY', 219);
+//=> false
+```
+
+### `store.cache.delete`
+
+Delete an action from cache. Returns `true` if action is deleted and `false` otherwise.
+
+```js
+store.cache.delete('user/GET_USER');
+//=> true
+
+store.cache.delete('FETCH_REPOSITORY', 219);
+//=> false
+```
+
+### `store.cache.clear`
+
+Clear the cache, delete all actions from it. Returns `true` if cache is cleared and `false` otherwise.
+
+```js
+store.cache.clear();
+//=> true
+```
+
+### Payload
+
+The payload value is `undefined` as default and supports functions, primitive values and JSON parseable objects.
+
+`store.cache.dispatch`, `store.cache.has` and `store.cache.delete` supports payload object as argument.
+
+```js
 store.cache.dispatch({
-  type: ACTION_NAME,
-  param: {...}
-})
-```
-params is same with vuex store.dispatch
+  type: 'FETCH_REPOSITORY',
+  payload: 198
+});
+//=> Promise { Repository }
 
-```javascript
-store.cache.delete(ACTION_NAME)
-// or
-store.cache.delete(ACTION_NAME, param)
-// or
-store.cache.delete({
-  type: ACTION_NAME,
-  param: {...}
-})
-```
-
-remove cached action, will **NOT** remove the data in store. when call cacheDispatch with same type, the request in that action will run again.
-
-```javascript
-store.cache.has(ACTION_NAME)
-// or
-store.cache.has(ACTION_NAME, param)
-// or
 store.cache.has({
-  type: ACTION_NAME,
-  param: {...}
-})
+  type: 'FETCH_REPOSITORY',
+  payload: 198
+});
+//=> true
+
+store.cache.delete({
+  type: 'FETCH_REPOSITORY',
+  payload: 198
+});
+//=> true
 ```
 
-return bool if ACTION\_NAME has been cached
+### Timeout
 
-```javascript
-store.cache.clear()
+`timeout` option is `0` as default and define cache duration is milliseconds.
+
+> **`0`** means it has no defined duration, no timeout.
+
+```js
+const store = new Store({
+  plugins: [
+    createCache({ timeout: 10000 })
+  ],
+  ...
+});
 ```
 
-clear all cached keys
+After milliseconds defined in timeout option an action is expired from cache.
+
+```js
+// This dispatches the action and set it on cache.
+store.cache.dispatch('FETCH_REPOSITORY', 219);
+//=> Promise { Repository }
+
+store.cache.has('FETCH_REPOSITORY', 219);
+//=> true
+
+setTimeout(() => {
+
+  // It returns false because the action is expired.
+  store.cache.has('FETCH_REPOSITORY', 219);
+  //=> false
+
+  // This dispatches the action again because the action is expired.
+  store.cache.dispatch('FETCH_REPOSITORY', 219);
+  //=> Promise { Repository }
+}, 10000)
+```
+
+Store's timeout can be overwritten by dispatch timeout option in Dispatch Options or in payload.
+
+```js
+store.cache.dispatch('FETCH_REPOSITORY', 219, {
+  timeout: 30000
+});
+
+// OR
+
+store.cache.dispatch({
+  type: 'FETCH_REPOSITORY',
+  payload: 219,
+  timeout: 30000
+});
+```
