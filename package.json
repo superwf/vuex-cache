@@ -60,7 +60,7 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/index.js"
+      "src/vuex-cache.js"
     ],
     "testMatch": [
       "<rootDir>/__test__/**/?(*.)(spec|test).js"
