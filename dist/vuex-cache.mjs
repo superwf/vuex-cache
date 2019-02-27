@@ -1,5 +1,5 @@
 /*!
- * vuex-cache v2.1.0
+ * vuex-cache v3.0.0
  * (c) superwf@gmail.com
  * Released under the MIT License.
  */

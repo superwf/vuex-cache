@@ -1,6 +1,6 @@
 {
   "name": "vuex-cache",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Cache dispatched actions and prevent repeated requests and heavy actions.",
   "cdn": "dist/vuex-cache.umd.min.js",
   "main": "dist/vuex-cache.js",
