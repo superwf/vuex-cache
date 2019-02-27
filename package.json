@@ -1,7 +1,7 @@
 {
   "name": "vuex-cache",
   "version": "2.1.0",
-  "description": "cache vuex action",
+  "description": "Cache dispatched actions and prevent repeated requests and heavy actions.",
   "cdn": "dist/vuex-cache.umd.min.js",
   "main": "dist/vuex-cache.js",
   "types": "types/vuex-cache.d.ts",
@@ -33,7 +33,9 @@
   },
   "keywords": [
     "vuex",
-    "cache"
+    "vuex-plugin",
+    "cache",
+    "cache-actions"
   ],
   "devDependencies": {
     "@babel/core": "^7.3.3",
