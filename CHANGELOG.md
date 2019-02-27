@@ -1,5 +1,106 @@
 # CHANGELOG
 
+## 3.0.0
+
+- **Breaking Change**: Module exports a factory to create plugin instead of the plugin itself.
+
+  ```js
+  import Vue from 'vue'
+  import Vuex, { Store } from 'vuex'
+  import createCache from 'vuex-cache'
+
+  Vue.use(Vuex)
+
+  const store = new Store({
+    plugins: [createCache()],
+    ...
+  })
+  ```
+
+- **Breaking Change**: `store.cache.has()` returns `false` for expired actions.
+
+  ```js
+  const store = new Store({
+    plugins: [createCache()],
+    actions: {
+      'ACTION': () => {}
+    }
+  })
+
+  store.cache.has('ACTION')
+  //=> false
+
+  store.cache.dispatch('ACTION', undefined, {
+    timeout: 100
+  });
+
+  store.cache.has('ACTION')
+  //=> true
+
+  setTimeout(() => {
+    store.cache.has('ACTION')
+    //=> false
+  }, 100)
+  ```
+
+  This fixes issue [#28](https://github.com/superwf/vuex-cache/issues/28).
+
+- **Breaking Change**: Cache is module scoped and don't support multiple instances anymore.
+
+  This fixes an issue with `cacheAction` cache state different from plugin one.
+
+- **Breaking Change**: `createCache` returns
+
+  This fixes an issue with `cacheAction` cache state different from plugin one.
+
+- **Breaking Change**: Rename main source module and bundles.
+
+  - Main module `index.js` is now `vuex-cache.js`
+  - CommonJS bundle `dist/vuex-cache.cjs.js` is now `dist/vuex-cache.js`
+  - ESM bundle `dist/vuex-cache.es.js` is now `dist/vuex-cache.mjs`
+  - UMD bundle `dist/vuex-cache.js` is now `dist/vuex-cache.umd.js`
+  - UMD minified bundle `dist/vuex-cache.min.js` is now `dist/vuex-cache.umd.min.js`
+
+- It now supports some of non JSON parseable values as arguments. Like functions, `undefined` and other values.
+
+  This fixes issue [#30](https://github.com/superwf/vuex-cache/issues/30).
+
+- Add JSDoc comments to functions and values.
+
+- Rename main module, functions and variables.
+
+- Refactor unit tests and split them into multiple modules.
+
+- Upgrade dependencies and bundle settings.
+
+- Create type definitions for TS developers & Editor/IDE intellisense.
+
+  This fixes issue [#32](https://github.com/superwf/vuex-cache/issues/32).
+
+- Add MIT License.
+
+- Improve `README.md` docs.
+
+  This fixes issue [#21](https://github.com/superwf/vuex-cache/issues/21).
+
+  - Add **Installation on Nuxt.js** section to `README.md`.
+
+    This fixes issue [#26](https://github.com/superwf/vuex-cache/issues/26).
+
+  - Move `Map` polyfill notice to **Compatibility** section.
+
+    Maybe fix the cause of issue [#31](https://github.com/superwf/vuex-cache/issues/31).
+
+  - Improve **Installation** section on `README.md`.
+
+  - Refactor **Usage** section and move it up.
+
+  - Create **API** section with docs about `cache` methods, **Payload** and **Timeout**.
+
+  - Remove old docs about `cache` methods, payload and timeout.
+
+  - Change `package.json` description and keywords.
+
 ## 2.1.0
 
 - Improve documentation.
