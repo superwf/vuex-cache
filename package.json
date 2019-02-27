@@ -4,6 +4,7 @@
   "description": "cache vuex action",
   "cdn": "dist/vuex-cache.umd.min.js",
   "main": "dist/vuex-cache.js",
+  "types": "types/vuex-cache.d.ts",
   "unpkg": "dist/vuex-cache.umd.min.js",
   "module": "dist/vuex-cache.mjs",
   "jsdelivr": "dist/vuex-cache.umd.min.js",
@@ -20,7 +21,8 @@
   "license": "MIT",
   "homepage": "https://github.com/superwf/vuex-cache",
   "files": [
-    "dist/"
+    "dist/",
+    "types/"
   ],
   "scripts": {
     "test": "jest",
