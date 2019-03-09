@@ -180,10 +180,11 @@ const defineCache = (store, options) => {
  * @param {Options} [options]
  * @returns {Action}
  */
-export const cacheAction = (action, options) => (context, payload) => {
-  defineCache(context, options)
-  return action(context, payload)
-}
+export const cacheAction = (action, options) =>
+  function(context, payload) {
+    defineCache(context, options)
+    return action.call(this, context, payload)
+  }
 
 /**
  * Create cache with options and define it on store instance.
