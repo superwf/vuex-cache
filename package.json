@@ -1,13 +1,14 @@
 {
   "name": "vuex-cache",
-  "version": "2.1.0",
-  "description": "cache vuex action",
-  "cdn": "dist/vuex-cache.min.js",
-  "main": "dist/vuex-cache.cjs.js",
-  "unpkg": "dist/vuex-cache.min.js",
-  "module": "dist/vuex-cache.es.js",
-  "jsdelivr": "dist/vuex-cache.min.js",
-  "umd:main": "dist/vuex-cache.js",
+  "version": "3.0.0",
+  "description": "Cache dispatched actions and prevent repeated requests and heavy actions.",
+  "cdn": "dist/vuex-cache.umd.min.js",
+  "main": "dist/vuex-cache.js",
+  "types": "types/vuex-cache.d.ts",
+  "unpkg": "dist/vuex-cache.umd.min.js",
+  "module": "dist/vuex-cache.mjs",
+  "jsdelivr": "dist/vuex-cache.umd.min.js",
+  "umd:main": "dist/vuex-cache.umd.js",
   "repository": "superwf/vuex-cache",
   "author": "superwf@gmail.com",
   "contributors": [
@@ -20,45 +21,48 @@
   "license": "MIT",
   "homepage": "https://github.com/superwf/vuex-cache",
   "files": [
-    "dist/"
+    "dist/",
+    "types/"
   ],
   "scripts": {
     "test": "jest",
     "cover": "jest --coverage",
-    "lint": "eslint src/index.js",
-    "build": "bili src/index.js --format es,cjs,umd,umd-min --banner",
+    "lint": "eslint src/vuex-cache.js",
+    "build": "bili src/vuex-cache.js --format es,cjs,umd,umd-min --module-name VuexCache --minimal --banner",
     "prepublish": "yarn lint && yarn build && yarn cover"
   },
   "keywords": [
     "vuex",
-    "cache"
+    "vuex-plugin",
+    "cache",
+    "cache-actions"
   ],
   "devDependencies": {
-    "@babel/core": "^7.2.2",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.2.3",
-    "@babel/runtime": "^7.2.0",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/runtime": "^7.3.4",
     "babel-core": "^7.0.0-bridge",
     "babel-eslint": "^10.0.1",
-    "babel-jest": "^23.6.0",
-    "bili": "^3.4.2",
-    "eslint": "^5.11.1",
-    "eslint-config-prettier": "^3.3.0",
+    "babel-jest": "^24.3.1",
+    "bili": "^4.4.0",
+    "eslint": "^5.15.1",
+    "eslint-config-prettier": "^4.1.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jest": "^22.1.2",
-    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jest": "^22.3.0",
+    "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
-    "jest": "^23.6.0",
-    "prettier": "^1.15.3",
-    "vue": "^2.5.21",
-    "vuex": "^3.0.1"
+    "jest": "^24.3.1",
+    "prettier": "^1.16.4",
+    "vue": "^2.6.8",
+    "vuex": "^3.1.0"
   },
   "jest": {
     "collectCoverageFrom": [
-      "src/index.js"
+      "src/vuex-cache.js"
     ],
     "testMatch": [
       "<rootDir>/__test__/**/?(*.)(spec|test).js"

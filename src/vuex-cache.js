@@ -1,18 +1,10 @@
-/*!
- * vuex-cache v3.0.0
- * (c) superwf@gmail.com
- * Released under the MIT License.
- */
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
 /**
  * Check if value is an object.
  * @param {any} value
  * @returns {value is Object}
  */
-var isObject = function (value) { return !!value && typeof value === 'object'; };
+const isObject = value => !!value && typeof value === 'object'
+
 /**
  * Type alias for Store or ActionContext instances.
  * @typedef {import('vuex').Store<any> | import('vuex').ActionContext<any, any>} Store
@@ -23,9 +15,9 @@ var isObject = function (value) { return !!value && typeof value === 'object'; }
  * @param {any} value
  * @returns {string}
  */
+const toString = value =>
+  isObject(value) ? JSON.stringify(value) : String(value)
 
-
-var toString = function (value) { return isObject(value) ? JSON.stringify(value) : String(value); };
 /**
  * Dispatch's options object.
  * @typedef {import('vuex').DispatchOptions & { timeout: number }} DispatchOptions
@@ -46,35 +38,32 @@ var toString = function (value) { return isObject(value) ? JSON.stringify(value)
  * @param {DispatchParams} params
  * @returns {[string, Payload?, DispatchOptions?]}
  */
+const resolveParams = params =>
+  isObject(params[0]) ? [params[0].type, params[0], params[1]] : params
 
+const GenerateKeyError = new Error("Can't generate key from parameters.")
 
-var resolveParams = function (params) { return isObject(params[0]) ? [params[0].type, params[0], params[1]] : params; };
-
-var GenerateKeyError = new Error("Can't generate key from parameters.");
 /**
  * Generate key from Dispatch parameters.
  * @param {DispatchParams} params
  * @returns {string|Error}
  */
-
-var generateKey = function (params) {
+const generateKey = params => {
   try {
-    var ref = resolveParams(params);
-    var type = ref[0];
-    var payload = ref[1];
-    return (type + ":" + (toString(payload)));
+    const [type, payload] = resolveParams(params)
+    return `${type}:${toString(payload)}`
   } catch (_) {
-    return GenerateKeyError;
+    return GenerateKeyError
   }
-};
+}
+
 /**
  * Check if value has timeout property.
  * @param {any} value
  * @returns {value is { timeout: number }}
  */
+const hasTimeout = value => isObject(value) && typeof value.timeout === 'number'
 
-
-var hasTimeout = function (value) { return isObject(value) && typeof value.timeout === 'number'; };
 /**
  * Type alias for options object.
  * @typedef {{ timeout?: number }} Options
@@ -86,27 +75,23 @@ var hasTimeout = function (value) { return isObject(value) && typeof value.timeo
  * @param {Options} [pluginOptions]
  * @returns {number}
  */
-
-
-var resolveTimeout = function (params, pluginOptions) {
-  var dispatchOptions = typeof params[0] === 'string' ? params[2] : params[0];
-
+const resolveTimeout = (params, pluginOptions) => {
+  const dispatchOptions = typeof params[0] === 'string' ? params[2] : params[0]
   if (hasTimeout(dispatchOptions)) {
-    return dispatchOptions.timeout;
+    return dispatchOptions.timeout
   } else if (hasTimeout(pluginOptions)) {
-    return pluginOptions.timeout;
+    return pluginOptions.timeout
   }
+  return 0
+}
 
-  return 0;
-};
 /**
  * Check if value (time) is expired.
  * @param {number} [expiresIn]
  * @returns {boolean}
  */
+const isExpired = expiresIn => !!expiresIn && Date.now() > expiresIn
 
-
-var isExpired = function (expiresIn) { return !!expiresIn && Date.now() > expiresIn; };
 /**
  * Cache's state record.
  * @typedef {{ expiresIn?: number, value: Promise<any> }} CacheRecord
@@ -116,51 +101,47 @@ var isExpired = function (expiresIn) { return !!expiresIn && Date.now() > expire
  * Cache's state.
  * @type {Map<string, CacheRecord>}
  */
+const state = new Map()
 
-
-var state = new Map();
 /**
  * Define cache property to store, or action context, object.
  * @param {Store} store
  * @param {Options} [options]
  */
-
-var defineCache = function (store, options) {
-  var cache = {
+const defineCache = (store, options) => {
+  const cache = {
     /**
      * Dispatch an action and set it on cache.
      * @param  {...DispatchParams} params
      * @returns {Promise<any>}
      */
-    dispatch: function dispatch() {
-      var params = [], len = arguments.length;
-      while ( len-- ) params[ len ] = arguments[ len ];
-
-      var key = generateKey(params);
+    dispatch(...params) {
+      const key = generateKey(params)
 
       if (key === GenerateKeyError) {
         // Fallback on generateKey errors.
-        return store.dispatch.apply(store, params);
+        return store.dispatch.apply(store, params)
       }
 
-      var ref = state.get(key) || {};
-      var value = ref.value;
-      var expiresIn = ref.expiresIn;
+      const { value, expiresIn } = state.get(key) || {}
 
       if (!!value && !isExpired(expiresIn)) {
-        return value;
+        return value
       }
 
-      var timeout = resolveTimeout(params, options);
-      var record = {
+      const timeout = resolveTimeout(params, options)
+
+      const record = {
         expiresIn: timeout ? Date.now() + timeout : undefined,
-        value: store.dispatch.apply(store, params)
-      };
-      state.set(key, record);
-      return record.value.catch(function (error) {
-        state.delete(key);
-        return Promise.reject(error);
-      });
+        value: store.dispatch.apply(store, params),
+      }
+
+      state.set(key, record)
+
+      return record.value.catch(error => {
+        state.delete(key)
+        return Promise.reject(error)
+      })
     },
 
     /**
@@ -168,27 +149,24 @@ var defineCache = function (store, options) {
      * @param  {...DispatchParams} params
      * @returns {boolean}
      */
-    has: function has() {
-      var params = [], len = arguments.length;
-      while ( len-- ) params[ len ] = arguments[ len ];
-
-      var key = generateKey(params);
+    has(...params) {
+      const key = generateKey(params)
 
       if (key === GenerateKeyError) {
         // Fallback on generateKey errors.
-        return false;
+        return false
       }
 
-      var record = state.get(key);
-      return isObject(record) && !isExpired(record.expiresIn);
+      const record = state.get(key)
+      return isObject(record) && !isExpired(record.expiresIn)
     },
 
     /**
      * Clear cache. Returns `true` if cache was cleared and `false` otherwise.
      * @returns {boolean}
      */
-    clear: function clear() {
-      return state.clear();
+    clear() {
+      return state.clear()
     },
 
     /**
@@ -196,28 +174,26 @@ var defineCache = function (store, options) {
      * and `false` otherwise.
      * @returns {boolean}
      */
-    delete: function delete$1() {
-      var params = [], len = arguments.length;
-      while ( len-- ) params[ len ] = arguments[ len ];
-
-      var key = generateKey(params);
+    delete(...params) {
+      const key = generateKey(params)
 
       if (key === GenerateKeyError) {
         // Fallback on generateKey errors.
-        return false;
+        return false
       }
 
-      return state.delete(key);
-    }
+      return state.delete(key)
+    },
+  }
 
-  };
   Object.defineProperty(store, 'cache', {
     value: cache,
     writable: false,
     enumerable: true,
-    configurable: false
-  });
-};
+    configurable: false,
+  })
+}
+
 /**
  * Type alias for Action.
  * @typedef {import('vuex').Action<any, any>} Action
@@ -229,19 +205,17 @@ var defineCache = function (store, options) {
  * @param {Options} [options]
  * @returns {Action}
  */
+export const cacheAction = (action, options) =>
+  function(context, payload) {
+    defineCache(context, options)
+    return action.call(this, context, payload)
+  }
 
-
-var cacheAction = function (action, options) { return function (context, payload) {
-  defineCache(context, options);
-  return action.call(this, context, payload);
-}; };
 /**
  * Create cache with options and define it on store instance.
  * @param {Options} options
  * @returns {(store: Store) => void}
  */
+const createCache = options => store => defineCache(store, options)
 
-var createCache = function (options) { return function (store) { return defineCache(store, options); }; };
-
-exports.cacheAction = cacheAction;
-exports.default = createCache;
+export default createCache
