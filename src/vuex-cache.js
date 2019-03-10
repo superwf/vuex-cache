@@ -41,14 +41,20 @@ const toString = value =>
 const resolveParams = params =>
   isObject(params[0]) ? [params[0].type, params[0], params[1]] : params
 
+const GenerateKeyError = new Error("Can't generate key from parameters.")
+
 /**
  * Generate key from Dispatch parameters.
  * @param {DispatchParams} params
- * @returns {string}
+ * @returns {string|Error}
  */
 const generateKey = params => {
-  const [type, payload] = resolveParams(params)
-  return `${type}:${toString(payload)}`
+  try {
+    const [type, payload] = resolveParams(params)
+    return `${type}:${toString(payload)}`
+  } catch (_) {
+    return GenerateKeyError
+  }
 }
 
 /**
@@ -111,6 +117,12 @@ const defineCache = (store, options) => {
      */
     dispatch(...params) {
       const key = generateKey(params)
+
+      if (key === GenerateKeyError) {
+        // Fallback on generateKey errors.
+        return store.dispatch.apply(store, params)
+      }
+
       const { value, expiresIn } = state.get(key) || {}
 
       if (!!value && !isExpired(expiresIn)) {
@@ -138,7 +150,14 @@ const defineCache = (store, options) => {
      * @returns {boolean}
      */
     has(...params) {
-      const record = state.get(generateKey(params))
+      const key = generateKey(params)
+
+      if (key === GenerateKeyError) {
+        // Fallback on generateKey errors.
+        return false
+      }
+
+      const record = state.get(key)
       return isObject(record) && !isExpired(record.expiresIn)
     },
 
@@ -157,6 +176,12 @@ const defineCache = (store, options) => {
      */
     delete(...params) {
       const key = generateKey(params)
+
+      if (key === GenerateKeyError) {
+        // Fallback on generateKey errors.
+        return false
+      }
+
       return state.delete(key)
     },
   }
