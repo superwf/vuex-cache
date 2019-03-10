@@ -51,18 +51,23 @@
 
 
   var resolveParams = function (params) { return isObject(params[0]) ? [params[0].type, params[0], params[1]] : params; };
+
+  var GenerateKeyError = new Error("Can't generate key from parameters.");
   /**
    * Generate key from Dispatch parameters.
    * @param {DispatchParams} params
-   * @returns {string}
+   * @returns {string|Error}
    */
 
-
   var generateKey = function (params) {
-    var ref = resolveParams(params);
-    var type = ref[0];
-    var payload = ref[1];
-    return (type + ":" + (toString(payload)));
+    try {
+      var ref = resolveParams(params);
+      var type = ref[0];
+      var payload = ref[1];
+      return (type + ":" + (toString(payload)));
+    } catch (_) {
+      return GenerateKeyError;
+    }
   };
   /**
    * Check if value has timeout property.
@@ -134,6 +139,12 @@
         while ( len-- ) params[ len ] = arguments[ len ];
 
         var key = generateKey(params);
+
+        if (key === GenerateKeyError) {
+          // Fallback on generateKey errors.
+          return store.dispatch.apply(store, params);
+        }
+
         var ref = state.get(key) || {};
         var value = ref.value;
         var expiresIn = ref.expiresIn;
@@ -163,7 +174,14 @@
         var params = [], len = arguments.length;
         while ( len-- ) params[ len ] = arguments[ len ];
 
-        var record = state.get(generateKey(params));
+        var key = generateKey(params);
+
+        if (key === GenerateKeyError) {
+          // Fallback on generateKey errors.
+          return false;
+        }
+
+        var record = state.get(key);
         return isObject(record) && !isExpired(record.expiresIn);
       },
 
@@ -185,6 +203,12 @@
         while ( len-- ) params[ len ] = arguments[ len ];
 
         var key = generateKey(params);
+
+        if (key === GenerateKeyError) {
+          // Fallback on generateKey errors.
+          return false;
+        }
+
         return state.delete(key);
       }
 
@@ -211,7 +235,7 @@
 
   var cacheAction = function (action, options) { return function (context, payload) {
     defineCache(context, options);
-    return action(context, payload);
+    return action.call(this, context, payload);
   }; };
   /**
    * Create cache with options and define it on store instance.
