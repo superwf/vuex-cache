@@ -65,6 +65,10 @@
 
   This fixes issue [#30](https://github.com/superwf/vuex-cache/issues/30).
 
+- It fallback dispatches to uncached if params have circular references.
+
+  This fixes issue [#29](https://github.com/superwf/vuex-cache/issues/29).
+
 - Add JSDoc comments to functions and values.
 
 - Rename main module, functions and variables.
