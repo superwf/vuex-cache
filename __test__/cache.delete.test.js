@@ -64,4 +64,18 @@ describe('store.cache.delete', () => {
 
     expect(store.cache.delete('ACTION', null)).toBe(false)
   })
+
+  it('returns false if params is non JSON parseable', async () => {
+    const store = createStore({
+      ACTION() {},
+    })
+
+    const a = {}
+    const b = { a }
+    a.b = b
+
+    await store.cache.dispatch('ACTION', a)
+
+    expect(store.cache.delete('ACTION', a)).toBe(false)
+  })
 })

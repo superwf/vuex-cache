@@ -76,4 +76,18 @@ describe('store.cache.has', () => {
 
     expect(store.cache.has('ACTION', null)).toBe(false)
   })
+
+  it('returns false if params is non JSON parseable', async () => {
+    const store = createStore({
+      ACTION() {},
+    })
+
+    const a = {}
+    const b = { a }
+    a.b = b
+
+    await store.cache.dispatch('ACTION', a)
+
+    expect(store.cache.has('ACTION', a)).toBe(false)
+  })
 })

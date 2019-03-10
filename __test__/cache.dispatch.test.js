@@ -135,6 +135,25 @@ describe('store.cache.dispatch', () => {
     expect(error).toEqual(new Error('An unknown error.'))
   })
 
+  it('non JSON parseable just fallback to native dispatch', async () => {
+    let wasCalled = false
+
+    const store = createStore({
+      A: () => {
+        wasCalled = true
+      },
+    })
+
+    const a = {}
+    const b = { a }
+    a.b = b
+
+    await store.cache.dispatch('A', a)
+
+    expect(wasCalled).toEqual(true)
+    expect(store.cache.has('A', a)).toEqual(false)
+  })
+
   it('it supports modules', async () => {
     let name = ''
     const store = createStoreWithModules({
