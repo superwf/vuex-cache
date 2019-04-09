@@ -192,6 +192,64 @@ const defineCache = (store, options) => {
     enumerable: true,
     configurable: false,
   })
+
+  for(let namespace in store._modulesNamespaceMap) {
+    const module = getModuleByNamespace(store, 'mapCacheActions', namespace);
+    
+    Object.defineProperty(module.context, 'cache', {
+      value: cache,
+      writable: false,
+      enumerable: true,
+      configurable: false
+    })
+  }
+}
+
+/**
+ * Normalize the map
+ * normalizeMap([1, 2, 3]) => [ { key: 1, val: 1 }, { key: 2, val: 2 }, { key: 3, val: 3 } ]
+ * normalizeMap({a: 1, b: 2, c: 3}) => [ { key: 'a', val: 1 }, { key: 'b', val: 2 }, { key: 'c', val: 3 } ]
+ * @param {Array|Object} map
+ * @return {Object}
+ */
+const normalizeMap = map => {
+  return Array.isArray(map)
+    ? map.map(key => ({ key, val: key }))
+    : Object.keys(map).map(key => ({ key, val: map[key] }))
+}
+
+/**
+ * Search a special module from store by namespace. if module not exist, print error message.
+ * @param {Object} store
+ * @param {String} helper
+ * @param {String} namespace
+ * @return {Object}
+ */
+const getModuleByNamespace = (store, helper, namespace) => {
+  const module = store._modulesNamespaceMap[namespace]
+  if (process.env.NODE_ENV !== 'production' && !module) {
+    console.error(
+      `[vuex-cache] module namespace not found in ${helper}(): ${namespace}`,
+    )
+  }
+  return module
+}
+
+/**
+ * Return a function expect two param contains namespace and map. it will normalize the namespace and then the param's function will handle the new namespace and the map.
+ * @param {Function} fn
+ * @return {Function}
+ */
+const normalizeNamespace = fn => {
+  return (namespace, map) => {
+    if (typeof namespace !== 'string') {
+      map = namespace
+      namespace = ''
+    } else if (namespace.charAt(namespace.length - 1) !== '/') {
+      namespace += '/'
+    }
+    return fn(namespace, map)
+  }
 }
 
 /**
@@ -210,6 +268,41 @@ export const cacheAction = (action, options) =>
     defineCache(context, options)
     return action.call(this, context, payload)
   }
+
+/**
+ * Create cache actions object to map to a component 
+ * @param {String} namespace
+ * @param {Array} actions
+ * @returns {Object}
+ */
+export const mapCacheActions = normalizeNamespace((namespace, actions) => {
+  const res = {}
+  normalizeMap(actions).forEach(({ key, val }) => {
+    res[key] = function mappedAction(...args) {
+      let dispatch = this.$store.cache.dispatch
+      if (namespace) {
+        const module = getModuleByNamespace(
+          this.$store,
+          'mapCacheActions',
+          namespace,
+        )
+        if (!module) {
+          return
+        }
+        // dispatch = module.context.cache.dispatch;
+        dispatch = typeof val === 'function'
+          ? (...params) => {
+            module.context.cache.dispatch.apply(this.$store, [`${namespace}${params[0]}`].concat(params.slice(1)))
+          }
+          : module.context.cache.dispatch
+      }
+      return typeof val === 'function'
+        ? val.apply(this, [dispatch].concat(args)) 
+        : dispatch.apply(this.$store, [`${namespace}${val}`].concat(args));
+    }
+  })
+  return res
+})
 
 /**
  * Create cache with options and define it on store instance.
