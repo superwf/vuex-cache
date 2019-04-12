@@ -65,7 +65,7 @@
       "src/vuex-cache.js"
     ],
     "testMatch": [
-      "<rootDir>/__test__/**/?(*.)(spec|test).js"
+      "<rootDir>/__test__/*.test.js"
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
