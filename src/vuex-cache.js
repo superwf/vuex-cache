@@ -193,14 +193,14 @@ const defineCache = (store, options) => {
     configurable: false,
   })
 
-  for(let namespace in store._modulesNamespaceMap) {
-    const module = getModuleByNamespace(store, 'mapCacheActions', namespace);
-    
+  for (let namespace in store._modulesNamespaceMap) {
+    const module = getModuleByNamespace(store, 'mapCacheActions', namespace)
+
     Object.defineProperty(module.context, 'cache', {
       value: cache,
       writable: false,
       enumerable: true,
-      configurable: false
+      configurable: false,
     })
   }
 }
@@ -270,7 +270,7 @@ export const cacheAction = (action, options) =>
   }
 
 /**
- * Create cache actions object to map to a component 
+ * Create cache actions object to map to a component
  * @param {String} namespace
  * @param {Array} actions
  * @returns {Object}
@@ -290,15 +290,19 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
           return
         }
         // dispatch = module.context.cache.dispatch;
-        dispatch = typeof val === 'function'
-          ? (...params) => {
-            module.context.cache.dispatch.apply(this.$store, [`${namespace}${params[0]}`].concat(params.slice(1)))
-          }
-          : module.context.cache.dispatch
+        dispatch =
+          typeof val === 'function'
+            ? (...params) => {
+                module.context.cache.dispatch.apply(
+                  this.$store,
+                  [`${namespace}${params[0]}`].concat(params.slice(1)),
+                )
+              }
+            : module.context.cache.dispatch
       }
       return typeof val === 'function'
-        ? val.apply(this, [dispatch].concat(args)) 
-        : dispatch.apply(this.$store, [`${namespace}${val}`].concat(args));
+        ? val.apply(this, [dispatch].concat(args))
+        : dispatch.apply(this.$store, [`${namespace}${val}`].concat(args))
     }
   })
   return res
