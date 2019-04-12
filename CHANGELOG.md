@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## 3.1.0
+
+- Add `mapCacheAction` function helper to call actions with cache on components.
+
+  ```js
+  import { mapCachedActions } from 'vuex-cache';
+
+  export default {
+    name: 'Users',
+    async mounted() {
+      this.GET_USER();
+      this.FETCH_REPOSITORY(219, {
+        timeout: 30000
+      });
+    }
+    methods: {
+      ...mapCachedActions(['FETCH_REPOSITORY']),
+      ...mapCachedActions('user', ['GET_USER'])
+    }
+  }
+  ```
+
+  Thanks to [@cwilby](https://github.com/cwilby) for PR [#37](https://github.com/superwf/vuex-cache/pull/37).
+
 ## 3.0.0
 
 - **Breaking Change**: Module exports a factory to create plugin instead of the plugin itself.
@@ -23,16 +47,16 @@
   const store = new Store({
     plugins: [createCache()],
     actions: {
-      'ACTION': () => {}
-    }
+      ACTION: () => {},
+    },
   })
 
   store.cache.has('ACTION')
   //=> false
 
   store.cache.dispatch('ACTION', undefined, {
-    timeout: 100
-  });
+    timeout: 100,
+  })
 
   store.cache.has('ACTION')
   //=> true
@@ -108,6 +132,7 @@
 ## 2.1.0
 
 - Improve documentation.
+
   - Fix title on `README.md`;
   - Add `CHANGELOG` file.
   - Improve **Compatibility**, **Installation** sections and move them up on `README.md`.
@@ -196,12 +221,12 @@
   store.cache.dispatch({
     type: 'UPDATE_USER',
     param: payload,
-    timeout: 100
+    timeout: 100,
   })
 
   // Or using dispatch's third argument (`DispatchOptions`).
   store.cache.dispatch('UPDATE_USER', payload, {
-    timeout: 100
+    timeout: 100,
   })
   ```
 
@@ -225,7 +250,7 @@
   ```js
   store.cache.dispatch({
     type: 'UPDATE_USER',
-    param: payload
+    param: payload,
   })
 
   store.cache.dispatch('UPDATE_USER', payload)
