@@ -177,6 +177,28 @@ store.cache.clear();
 //=> true
 ```
 
+### `mapCacheActions`
+
+Create component methods that dispatch a cached action.
+
+```js
+import { mapCachedActions } from 'vuex-cache';
+
+export default {
+  name: 'Users',
+  async mounted() {
+    this.GET_USER();
+    this.FETCH_REPOSITORY(219, {
+      timeout: 30000
+    });
+  }
+  methods: {
+    ...mapCachedActions(['FETCH_REPOSITORY']),
+    ...mapCachedActions('user', ['GET_USER'])
+  }
+}
+```
+
 ### Payload
 
 The payload value is `undefined` as default and supports functions, primitive values and JSON parseable objects.
