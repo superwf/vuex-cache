@@ -1,5 +1,5 @@
 /*!
- * vuex-cache v3.0.0
+ * vuex-cache v3.1.0
  * (c) superwf@gmail.com
  * Released under the MIT License.
  */
@@ -219,6 +219,71 @@
       enumerable: true,
       configurable: false
     });
+
+    for (var namespace in store._modulesNamespaceMap) {
+      var module = getModuleByNamespace(store, 'mapCacheActions', namespace);
+      Object.defineProperty(module.context, 'cache', {
+        value: cache,
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
+    }
+  };
+  /**
+   * Normalize the map
+   * normalizeMap([1, 2, 3]) => [ { key: 1, val: 1 }, { key: 2, val: 2 }, { key: 3, val: 3 } ]
+   * normalizeMap({a: 1, b: 2, c: 3}) => [ { key: 'a', val: 1 }, { key: 'b', val: 2 }, { key: 'c', val: 3 } ]
+   * @param {Array|Object} map
+   * @return {Object}
+   */
+
+
+  var normalizeMap = function (map) {
+    return Array.isArray(map) ? map.map(function (key) { return ({
+      key: key,
+      val: key
+    }); }) : Object.keys(map).map(function (key) { return ({
+      key: key,
+      val: map[key]
+    }); });
+  };
+  /**
+   * Search a special module from store by namespace. if module not exist, print error message.
+   * @param {Object} store
+   * @param {String} helper
+   * @param {String} namespace
+   * @return {Object}
+   */
+
+
+  var getModuleByNamespace = function (store, helper, namespace) {
+    var module = store._modulesNamespaceMap[namespace];
+
+    if (process.env.NODE_ENV !== 'production' && !module) {
+      console.error(("[vuex-cache] module namespace not found in " + helper + "(): " + namespace));
+    }
+
+    return module;
+  };
+  /**
+   * Return a function expect two param contains namespace and map. it will normalize the namespace and then the param's function will handle the new namespace and the map.
+   * @param {Function} fn
+   * @return {Function}
+   */
+
+
+  var normalizeNamespace = function (fn) {
+    return function (namespace, map) {
+      if (typeof namespace !== 'string') {
+        map = namespace;
+        namespace = '';
+      } else if (namespace.charAt(namespace.length - 1) !== '/') {
+        namespace += '/';
+      }
+
+      return fn(namespace, map);
+    };
   };
   /**
    * Type alias for Action.
@@ -238,6 +303,47 @@
     return action.call(this, context, payload);
   }; };
   /**
+   * Create cache actions object to map to a component
+   * @param {String} namespace
+   * @param {Array} actions
+   * @returns {Object}
+   */
+
+  var mapCacheActions = normalizeNamespace(function (namespace, actions) {
+    var res = {};
+    normalizeMap(actions).forEach(function (ref) {
+      var key = ref.key;
+      var val = ref.val;
+
+      res[key] = function mappedAction() {
+        var this$1 = this;
+        var args = [], len = arguments.length;
+        while ( len-- ) args[ len ] = arguments[ len ];
+
+        var dispatch = this.$store.cache.dispatch;
+
+        if (namespace) {
+          var module = getModuleByNamespace(this.$store, 'mapCacheActions', namespace);
+
+          if (!module) {
+            return;
+          } // dispatch = module.context.cache.dispatch;
+
+
+          dispatch = typeof val === 'function' ? function () {
+            var params = [], len = arguments.length;
+            while ( len-- ) params[ len ] = arguments[ len ];
+
+            module.context.cache.dispatch.apply(this$1.$store, [("" + namespace + (params[0]))].concat(params.slice(1)));
+          } : module.context.cache.dispatch;
+        }
+
+        return typeof val === 'function' ? val.apply(this, [dispatch].concat(args)) : dispatch.apply(this.$store, [("" + namespace + val)].concat(args));
+      };
+    });
+    return res;
+  });
+  /**
    * Create cache with options and define it on store instance.
    * @param {Options} options
    * @returns {(store: Store) => void}
@@ -247,6 +353,7 @@
 
   exports.cacheAction = cacheAction;
   exports.default = createCache;
+  exports.mapCacheActions = mapCacheActions;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
