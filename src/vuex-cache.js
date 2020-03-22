@@ -294,7 +294,7 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
           typeof val === 'function'
             ? (...params) => {
                 module.context.cache.dispatch.apply(
-                  this.$store,
+                  this.$store.cache,
                   [`${namespace}${params[0]}`].concat(params.slice(1)),
                 )
               }
@@ -302,7 +302,7 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
       }
       return typeof val === 'function'
         ? val.apply(this, [dispatch].concat(args))
-        : dispatch.apply(this.$store, [`${namespace}${val}`].concat(args))
+        : dispatch.apply(this.$store.cache, [`${namespace}${val}`].concat(args))
     }
   })
   return res
