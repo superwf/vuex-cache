@@ -264,7 +264,7 @@ const normalizeNamespace = fn => {
  * @returns {Action}
  */
 export const cacheAction = (action, options) =>
-  function (context, payload) {
+  function(context, payload) {
     defineCache(context, options)
     return action.call(this, context, payload)
   }
@@ -294,12 +294,12 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
         dispatch =
           typeof val === 'function'
             ? (type, ...payload) => {
-              module.context.cache.dispatch.call(
-                this.$store.cache,
-                `${namespace}${type}`,
-                ...payload
-              )
-            }
+                module.context.cache.dispatch.call(
+                  this.$store.cache,
+                  `${namespace}${type}`,
+                  ...payload,
+                )
+              }
             : module.context.cache.dispatch
       }
 

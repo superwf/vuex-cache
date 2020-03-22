@@ -1,5 +1,5 @@
 /*!
- * vuex-cache v3.1.0
+ * vuex-cache v3.1.1
  * (c) superwf@gmail.com
  * Released under the MIT License.
  */
@@ -324,15 +324,16 @@ var mapCacheActions = normalizeNamespace(function (namespace, actions) {
         } // dispatch = module.context.cache.dispatch;
 
 
-        dispatch = typeof val === 'function' ? function () {
-          var params = [], len = arguments.length;
-          while ( len-- ) params[ len ] = arguments[ len ];
+        dispatch = typeof val === 'function' ? function (type) {
+          var ref;
 
-          module.context.cache.dispatch.apply(this$1.$store, [("" + namespace + (params[0]))].concat(params.slice(1)));
+          var payload = [], len = arguments.length - 1;
+          while ( len-- > 0 ) payload[ len ] = arguments[ len + 1 ];
+          (ref = module.context.cache.dispatch).call.apply(ref, [ this$1.$store.cache, ("" + namespace + type) ].concat( payload ));
         } : module.context.cache.dispatch;
       }
 
-      return typeof val === 'function' ? val.apply(this, [dispatch].concat(args)) : dispatch.apply(this.$store, [("" + namespace + val)].concat(args));
+      return typeof val === 'function' ? val.call.apply(val, [ this, dispatch ].concat( args )) : dispatch.call.apply(dispatch, [ this.$store.cache, ("" + namespace + val) ].concat( args ));
     };
   });
   return res;

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 3.1.1
+
+- Fixed `mapCacheActions` apply wrong context to `dispatch` method.
+
+  Thanks to [@kierans](https://github.com/kierans) for PR [#44](https://github.com/superwf/vuex-cache/pull/44) that fixed issue [#43](https://github.com/superwf/vuex-cache/issues/43) reported by himself.
+
+- Export the `StoreCache` interface in type declarations.
+
+  Thanks to [@kierans](https://github.com/kierans) for PR [#42](https://github.com/superwf/vuex-cache/pull/42) that fixed issue [#41](https://github.com/superwf/vuex-cache/issues/41) reported by himself.
+
 ## 3.1.0
 
 - Add `mapCacheAction` function helper to call actions with cache on components.
