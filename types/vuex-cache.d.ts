@@ -8,7 +8,7 @@ import {
   Store,
 } from 'vuex'
 
-interface StoreCache {
+export interface StoreCache {
   /**
    * Dispatch an action and set it on cache.
    */
