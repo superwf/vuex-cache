@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import {
-  Action,
   ActionContext,
   Dispatch,
   DispatchOptions,
