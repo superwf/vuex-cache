@@ -264,7 +264,7 @@ const normalizeNamespace = fn => {
  * @returns {Action}
  */
 export const cacheAction = (action, options) =>
-  function(context, payload) {
+  function (context, payload) {
     defineCache(context, options)
     return action.call(this, context, payload)
   }
@@ -280,6 +280,7 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
   normalizeMap(actions).forEach(({ key, val }) => {
     res[key] = function mappedAction(...args) {
       let dispatch = this.$store.cache.dispatch
+
       if (namespace) {
         const module = getModuleByNamespace(
           this.$store,
@@ -292,17 +293,19 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
         // dispatch = module.context.cache.dispatch;
         dispatch =
           typeof val === 'function'
-            ? (...params) => {
-                module.context.cache.dispatch.apply(
-                  this.$store.cache,
-                  [`${namespace}${params[0]}`].concat(params.slice(1)),
-                )
-              }
+            ? (type, ...payload) => {
+              module.context.cache.dispatch.call(
+                this.$store.cache,
+                `${namespace}${type}`,
+                ...payload
+              )
+            }
             : module.context.cache.dispatch
       }
+
       return typeof val === 'function'
-        ? val.apply(this, [dispatch].concat(args))
-        : dispatch.apply(this.$store.cache, [`${namespace}${val}`].concat(args))
+        ? val.call(this, dispatch, ...args)
+        : dispatch.call(this.$store.cache, `${namespace}${val}`, ...args)
     }
   })
   return res
