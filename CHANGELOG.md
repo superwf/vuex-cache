@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.2.0
+
+- Upgrade devDependencies.
+
 ## 3.1.1
 
 - Fixed `mapCacheActions` apply wrong context to `dispatch` method.
