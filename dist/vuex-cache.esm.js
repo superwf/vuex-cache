@@ -1,8 +1,3 @@
-/*!
- * vuex-cache v3.1.1
- * (c) superwf@gmail.com
- * Released under the MIT License.
- */
 /**
  * Check if value is an object.
  * @param {any} value

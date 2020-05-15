@@ -1,13 +1,8 @@
-/*!
- * vuex-cache v3.1.1
- * (c) superwf@gmail.com
- * Released under the MIT License.
- */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.VuexCache = {}));
-}(this, function (exports) { 'use strict';
+}(this, (function (exports) { 'use strict';
 
   /**
    * Check if value is an object.
@@ -260,7 +255,7 @@
   var getModuleByNamespace = function (store, helper, namespace) {
     var module = store._modulesNamespaceMap[namespace];
 
-    if (process.env.NODE_ENV !== 'production' && !module) {
+    if ( !module) {
       console.error(("[vuex-cache] module namespace not found in " + helper + "(): " + namespace));
     }
 
@@ -358,4 +353,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));

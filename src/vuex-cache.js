@@ -3,7 +3,7 @@
  * @param {any} value
  * @returns {value is Object}
  */
-const isObject = value => !!value && typeof value === 'object'
+const isObject = (value) => !!value && typeof value === 'object'
 
 /**
  * Type alias for Store or ActionContext instances.
@@ -15,7 +15,7 @@ const isObject = value => !!value && typeof value === 'object'
  * @param {any} value
  * @returns {string}
  */
-const toString = value =>
+const toString = (value) =>
   isObject(value) ? JSON.stringify(value) : String(value)
 
 /**
@@ -38,7 +38,7 @@ const toString = value =>
  * @param {DispatchParams} params
  * @returns {[string, Payload?, DispatchOptions?]}
  */
-const resolveParams = params =>
+const resolveParams = (params) =>
   isObject(params[0]) ? [params[0].type, params[0], params[1]] : params
 
 const GenerateKeyError = new Error("Can't generate key from parameters.")
@@ -48,7 +48,7 @@ const GenerateKeyError = new Error("Can't generate key from parameters.")
  * @param {DispatchParams} params
  * @returns {string|Error}
  */
-const generateKey = params => {
+const generateKey = (params) => {
   try {
     const [type, payload] = resolveParams(params)
     return `${type}:${toString(payload)}`
@@ -62,7 +62,8 @@ const generateKey = params => {
  * @param {any} value
  * @returns {value is { timeout: number }}
  */
-const hasTimeout = value => isObject(value) && typeof value.timeout === 'number'
+const hasTimeout = (value) =>
+  isObject(value) && typeof value.timeout === 'number'
 
 /**
  * Type alias for options object.
@@ -90,7 +91,7 @@ const resolveTimeout = (params, pluginOptions) => {
  * @param {number} [expiresIn]
  * @returns {boolean}
  */
-const isExpired = expiresIn => !!expiresIn && Date.now() > expiresIn
+const isExpired = (expiresIn) => !!expiresIn && Date.now() > expiresIn
 
 /**
  * Cache's state record.
@@ -138,7 +139,7 @@ const defineCache = (store, options) => {
 
       state.set(key, record)
 
-      return record.value.catch(error => {
+      return record.value.catch((error) => {
         state.delete(key)
         return Promise.reject(error)
       })
@@ -193,7 +194,7 @@ const defineCache = (store, options) => {
     configurable: false,
   })
 
-  for (let namespace in store._modulesNamespaceMap) {
+  for (const namespace in store._modulesNamespaceMap) {
     const module = getModuleByNamespace(store, 'mapCacheActions', namespace)
 
     Object.defineProperty(module.context, 'cache', {
@@ -212,10 +213,10 @@ const defineCache = (store, options) => {
  * @param {Array|Object} map
  * @return {Object}
  */
-const normalizeMap = map => {
+const normalizeMap = (map) => {
   return Array.isArray(map)
-    ? map.map(key => ({ key, val: key }))
-    : Object.keys(map).map(key => ({ key, val: map[key] }))
+    ? map.map((key) => ({ key, val: key }))
+    : Object.keys(map).map((key) => ({ key, val: map[key] }))
 }
 
 /**
@@ -240,7 +241,7 @@ const getModuleByNamespace = (store, helper, namespace) => {
  * @param {Function} fn
  * @return {Function}
  */
-const normalizeNamespace = fn => {
+const normalizeNamespace = (fn) => {
   return (namespace, map) => {
     if (typeof namespace !== 'string') {
       map = namespace
@@ -264,7 +265,7 @@ const normalizeNamespace = fn => {
  * @returns {Action}
  */
 export const cacheAction = (action, options) =>
-  function(context, payload) {
+  function (context, payload) {
     defineCache(context, options)
     return action.call(this, context, payload)
   }
@@ -316,6 +317,6 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
  * @param {Options} options
  * @returns {(store: Store) => void}
  */
-const createCache = options => store => defineCache(store, options)
+const createCache = (options) => (store) => defineCache(store, options)
 
 export default createCache

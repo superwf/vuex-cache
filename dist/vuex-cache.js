@@ -1,8 +1,3 @@
-/*!
- * vuex-cache v3.1.1
- * (c) superwf@gmail.com
- * Released under the MIT License.
- */
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
