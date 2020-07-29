@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 3.3.0
+
+- Upgrade devDependencies.
+- Rename `dist/vuex-cache.esm.js` to `dist/vuex-cache.es.js` because of `bili` update.
+
 ## 3.2.0
 
 - Upgrade devDependencies.
