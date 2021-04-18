@@ -168,6 +168,8 @@ store.cache.delete('FETCH_REPOSITORY', 219);
 //=> false
 ```
 
+> Only exact matches are deleted. Use `store.cache.clear` to delete all items or by action name.
+
 ### `store.cache.clear`
 
 Clear the cache, delete all actions from it. Returns `true` if cache is cleared and `false` otherwise.
@@ -175,6 +177,15 @@ Clear the cache, delete all actions from it. Returns `true` if cache is cleared 
 ```js
 store.cache.clear();
 //=> true
+```
+
+If using the type parameter, only actions with the specified type are deleted from cache and the number of deleted keys is returned.
+
+```js
+// store.cache.dispatch('FETCH_REPOSITORIES', { page: 1 });
+// store.cache.dispatch('FETCH_REPOSITORIES', { page: 2 });
+store.cache.clear('FETCH_REPOSITORIES');
+//=> 2
 ```
 
 ### `mapCacheActions`

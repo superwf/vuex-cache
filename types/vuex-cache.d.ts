@@ -27,9 +27,13 @@ export interface StoreCache {
    * Clear cache. Returns `true` if cache was cleared and `false` otherwise.
    */
   clear(): boolean
+  /**
+   * Partially clear cache by type. Returns the number of deleted items.
+   */
+  clear(type: string): number
 
   /**
-   * Detele an action from cache. Returns `true` if it was deleted
+   * Delete an action from cache. Returns `true` if it was deleted
    * and `false` otherwise.
    */
   delete(type: string, payload?: any): boolean

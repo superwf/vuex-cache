@@ -164,14 +164,22 @@ const defineCache = (store, options) => {
 
     /**
      * Clear cache. Returns `true` if cache was cleared and `false` otherwise.
-     * @returns {boolean}
+     * If using the type parameter, only actions with the specified type are
+     * deleted from cache and the number of deleted keys is returned.
+     * @returns {boolean|number}
      */
-    clear() {
-      return state.clear()
+    clear(...params) {
+      const [type] = resolveParams(params)
+      if (type) {
+        return Array.from(state.keys())
+          .filter((key) => key.startsWith(type))
+          .reduce((count, key) => count + state.delete(key), 0)
+      }
+      return !!state.clear()
     },
 
     /**
-     * Detele an action dispatch from cache. Returns `true` if it was deleted
+     * Delete an action dispatch from cache. Returns `true` if it was deleted
      * and `false` otherwise.
      * @returns {boolean}
      */

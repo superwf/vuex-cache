@@ -27,5 +27,20 @@ describe('store.cache.clear', () => {
 
     expect(store.cache.has('A')).toBe(false)
     expect(store.cache.has('B', { name: '@superwf' })).toBe(false)
+
+    store.cache.dispatch('A')
+    store.cache.dispatch('B', { name: '@superwf1' })
+    store.cache.dispatch('B', { name: '@superwf2' })
+
+    expect(store.cache.has('A')).toBe(true)
+    expect(store.cache.has('B', { name: '@superwf1' })).toBe(true)
+    expect(store.cache.has('B', { name: '@superwf2' })).toBe(true)
+
+    const count = store.cache.clear('B')
+
+    expect(count).toBe(2)
+    expect(store.cache.has('A')).toBe(true)
+    expect(store.cache.has('B', { name: '@superwf1' })).toBe(false)
+    expect(store.cache.has('B', { name: '@superwf2' })).toBe(false)
   })
 })
