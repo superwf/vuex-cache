@@ -172,7 +172,7 @@ const defineCache = (store, options) => {
       const [type] = resolveParams(params)
       if (type) {
         return Array.from(state.keys())
-          .filter((key) => key.startsWith(type))
+          .filter((key) => key.split(':')[0] === type)
           .reduce((count, key) => count + state.delete(key), 0)
       }
       return !!state.clear()
