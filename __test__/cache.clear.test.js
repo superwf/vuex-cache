@@ -36,19 +36,22 @@ describe('store.cache.clear', () => {
       BC: () => {},
     })
     store.cache.dispatch('A')
+    store.cache.dispatch('B')
     store.cache.dispatch('B', { page: 1 })
     store.cache.dispatch('B', { page: 2 })
     store.cache.dispatch('BC')
 
     expect(store.cache.has('A')).toBe(true)
+    expect(store.cache.has('B')).toBe(true)
     expect(store.cache.has('B', { page: 1 })).toBe(true)
     expect(store.cache.has('B', { page: 2 })).toBe(true)
     expect(store.cache.has('BC')).toBe(true)
 
     const count = store.cache.clear('B')
 
-    expect(count).toBe(2)
+    expect(count).toBe(3)
     expect(store.cache.has('A')).toBe(true)
+    expect(store.cache.has('B')).toBe(false)
     expect(store.cache.has('B', { page: 1 })).toBe(false)
     expect(store.cache.has('B', { page: 2 })).toBe(false)
     expect(store.cache.has('BC')).toBe(true)
