@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.4.0
+
+- Upgrade devDependencies.
+- Allow clear to delete all cached actions with same name.
+
+  Thanks to [@lukasbesch](https://github.com/lukasbesch) for PR [#51](https://github.com/superwf/vuex-cache/pull/51).
+
 ## 3.3.0
 
 - Upgrade devDependencies.
