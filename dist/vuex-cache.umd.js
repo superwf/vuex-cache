@@ -182,14 +182,26 @@
 
       /**
        * Clear cache. Returns `true` if cache was cleared and `false` otherwise.
-       * @returns {boolean}
+       * If using the type parameter, only actions with the specified type are
+       * deleted from cache and the number of deleted keys is returned.
+       * @returns {boolean|number}
        */
       clear: function clear() {
-        return state.clear();
+        var params = [], len = arguments.length;
+        while ( len-- ) params[ len ] = arguments[ len ];
+
+        var ref = resolveParams(params);
+        var type = ref[0];
+
+        if (type) {
+          return Array.from(state.keys()).filter(function (key) { return key.split(':')[0] === type; }).reduce(function (count, key) { return count + state.delete(key); }, 0);
+        }
+
+        return !!state.clear();
       },
 
       /**
-       * Detele an action dispatch from cache. Returns `true` if it was deleted
+       * Delete an action dispatch from cache. Returns `true` if it was deleted
        * and `false` otherwise.
        * @returns {boolean}
        */
@@ -255,7 +267,7 @@
   var getModuleByNamespace = function (store, helper, namespace) {
     var module = store._modulesNamespaceMap[namespace];
 
-    if ( !module) {
+    if (!module) {
       console.error(("[vuex-cache] module namespace not found in " + helper + "(): " + namespace));
     }
 
