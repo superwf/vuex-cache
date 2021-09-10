@@ -288,3 +288,83 @@ store.cache.dispatch({
   timeout: 30000
 });
 ```
+
+### cache-key-generators
+
+For example, maybe there is something like a per-call request-root-id, but it should not be used in the cache key..
+An example to set a globally overridden default cache-key generator function:
+
+```js
+/**
+ * Generate key from Dispatch parameters.
+ * @param {DispatchParams} params
+ * @returns {string|Error}
+ */
+const cacheKeyCreatorFn = function (params) {
+  console.log('localRootStore:cacheKeyGeneratorFn:', arguments)
+  try {
+    const ref = resolveParams(params)
+    const type = ref[0]
+    let payload = ref[1]
+    if (payload) {
+      if (payload._cacheKey) {
+        if (ObjectExts.isFunction(payload._cacheKey)) {
+		  // keep using local-cache-key generator:
+          return payload._cacheKey(type, payload)
+        } else {
+		  // keep using externally-set cache-key:
+          return (type + ':' + (toString(payload._cacheKey)))
+        }
+      } else if (payload.rrid) {
+        // remove this from the cache-input:
+        payload = Object.assign({}, payload)
+        delete payload.rrid
+        return (type + ':' + (toString(payload)))
+      } else {
+	    //go ahead with all params:
+        return (type + ':' + (toString(payload)))
+      }
+    } else {
+      return (type + ':' + (toString(payload)))
+    }
+  } catch (_) {
+    return GenerateKeyError
+  }
+}
+
+// config, to add generator function:
+const cacheOptions = {
+  // timeout: 10000, // default == 0 == never-evict,
+  generateKey: cacheKeyCreatorFn
+}
+
+// create Store..
+const localRootStore = new Vuex.Store({
+  plugins: [createCache(cacheOptions)],
+  strict: process.env.NODE_ENV !== 'production'
+})
+```
+
+To use a fixed cache key, in a store, for this cached call only; passing in other params: (singleton-query..)
+But, instead of returning a fixed key, the function could also create key based on the other params..
+Usage in the store action:
+
+```js
+const actions = {
+    getDataOnlyOnce: cacheAction(
+		function({ cache, dispatch }, params) {
+			let cacheParams = Object.assign({
+				_cacheKey:function(type, payload){return '$$static_key_here$$'}
+			}, params);
+			return cache.dispatch('fetchDataOnlyOnce', cacheParams)
+				.then(function(singleResponse) { 
+					// ...
+				})
+				//...
+			;
+			//...
+		})
+	)
+	, //...
+}
+```
