@@ -3,7 +3,9 @@
  * @param {any} value
  * @returns {value is Object}
  */
-const isObject = (value) => !!value && typeof value === 'object'
+const isObject = (value) => {
+  return !!value && typeof value === 'object'
+}
 
 /**
  * Type alias for Store or ActionContext instances.
@@ -15,8 +17,9 @@ const isObject = (value) => !!value && typeof value === 'object'
  * @param {any} value
  * @returns {string}
  */
-const toString = (value) =>
-  isObject(value) ? JSON.stringify(value) : String(value)
+const toString = (value) => {
+  return isObject(value) ? JSON.stringify(value) : String(value)
+}
 
 /**
  * Dispatch's options object.
@@ -38,8 +41,9 @@ const toString = (value) =>
  * @param {DispatchParams} params
  * @returns {[string, Payload?, DispatchOptions?]}
  */
-const resolveParams = (params) =>
-  isObject(params[0]) ? [params[0].type, params[0], params[1]] : params
+const resolveParams = (params) => {
+  return isObject(params[0]) ? [params[0].type, params[0], params[1]] : params
+}
 
 const GenerateKeyError = new Error("Can't generate key from parameters.")
 
@@ -62,8 +66,9 @@ const generateKey = (params) => {
  * @param {any} value
  * @returns {value is { timeout: number }}
  */
-const hasTimeout = (value) =>
-  isObject(value) && typeof value.timeout === 'number'
+const hasTimeout = (value) => {
+  return isObject(value) && typeof value.timeout === 'number'
+}
 
 /**
  * Type alias for options object.
@@ -91,7 +96,9 @@ const resolveTimeout = (params, pluginOptions) => {
  * @param {number} [expiresIn]
  * @returns {boolean}
  */
-const isExpired = (expiresIn) => !!expiresIn && Date.now() > expiresIn
+const isExpired = (expiresIn) => {
+  return !!expiresIn && Date.now() > expiresIn
+}
 
 /**
  * Cache's state record.
@@ -193,6 +200,10 @@ const defineCache = (store, options) => {
 
       return state.delete(key)
     },
+
+    state() {
+      return state
+    }
   }
 
   Object.defineProperty(store, 'cache', {
@@ -303,12 +314,12 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
         dispatch =
           typeof val === 'function'
             ? (type, ...payload) => {
-                module.context.cache.dispatch.call(
-                  this.$store.cache,
-                  `${namespace}${type}`,
-                  ...payload,
-                )
-              }
+              module.context.cache.dispatch.call(
+                this.$store.cache,
+                `${namespace}${type}`,
+                ...payload,
+              )
+            }
             : module.context.cache.dispatch
       }
 
