@@ -52,13 +52,19 @@ const GenerateKeyError = new Error("Can't generate key from parameters.")
  * @param {DispatchParams} params
  * @returns {string|Error}
  */
-const generateKey = (params) => {
+const defaultGenerateKey = function (params) {
   try {
-    const [type, payload] = resolveParams(params)
-    return `${type}:${toString(payload)}`
+    const ref = resolveParams(params)
+    const type = ref[0]
+    const payload = ref[1]
+    return (type + ':' + (toString(payload)))
   } catch (_) {
     return GenerateKeyError
   }
+}
+
+const configurableGlobal = {
+  generateKey: defaultGenerateKey
 }
 
 /**
@@ -117,6 +123,9 @@ const state = new Map()
  * @param {Options} [options]
  */
 const defineCache = (store, options) => {
+  if (options && options.generateKey) {
+    configurableGlobal.generateKey = options.generateKey
+  }
   const cache = {
     /**
      * Dispatch an action and set it on cache.
@@ -124,7 +133,7 @@ const defineCache = (store, options) => {
      * @returns {Promise<any>}
      */
     dispatch(...params) {
-      const key = generateKey(params)
+      const key = configurableGlobal.generateKey(params)
 
       if (key === GenerateKeyError) {
         // Fallback on generateKey errors.
@@ -158,7 +167,7 @@ const defineCache = (store, options) => {
      * @returns {boolean}
      */
     has(...params) {
-      const key = generateKey(params)
+      const key = configurableGlobal.generateKey(params)
 
       if (key === GenerateKeyError) {
         // Fallback on generateKey errors.
@@ -191,7 +200,7 @@ const defineCache = (store, options) => {
      * @returns {boolean}
      */
     delete(...params) {
-      const key = generateKey(params)
+      const key = configurableGlobal.generateKey(params)
 
       if (key === GenerateKeyError) {
         // Fallback on generateKey errors.
