@@ -71,7 +71,7 @@ module.exports = {
 
 #### Global store (`~/store/index.js`)
 ```javascript
-import createCache from '../plugins/@rah-emil-vuex-cache';
+import createCache from '~/plugins/vuex-cache.js';
 
 export const plugins = [
     createCache()
