@@ -48,15 +48,15 @@ describe('store.cache.dispatch', () => {
       action: () => {},
     })
 
-    expect(store.cache.has('action')).toBeFalsy()
-    expect(store.cache.has({ type: 'action' })).toBeFalsy()
-    expect(store.cache.has('action', { type: 'action' })).toBeFalsy()
+    expect(store.cache.has('action')).toBe(false)
+    expect(store.cache.has({ type: 'action' })).toBe(false)
+    expect(store.cache.has('action', { type: 'action' })).toBe(false)
 
     store.cache.dispatch({ type: 'action' })
 
-    expect(store.cache.has('action')).toBeFalsy()
-    expect(store.cache.has({ type: 'action' })).toBeTruthy()
-    expect(store.cache.has('action', { type: 'action' })).toBeTruthy()
+    expect(store.cache.has('action')).toBe(false)
+    expect(store.cache.has({ type: 'action' })).toBe(true)
+    expect(store.cache.has('action', { type: 'action' })).toBe(true)
   })
 
   it('set action dispatch on cache', () => {
@@ -64,18 +64,18 @@ describe('store.cache.dispatch', () => {
       action: () => {},
     })
 
-    expect(store.cache.has('action')).toBeFalsy()
-    expect(store.cache.has({ type: 'action' })).toBeFalsy()
+    expect(store.cache.has('action')).toBe(false)
+    expect(store.cache.has({ type: 'action' })).toBe(false)
 
     store.cache.dispatch('action')
 
-    expect(store.cache.has('action')).toBeTruthy()
-    expect(store.cache.has({ type: 'action' })).toBeFalsy()
+    expect(store.cache.has('action')).toBe(true)
+    expect(store.cache.has({ type: 'action' })).toBe(false)
 
     store.cache.dispatch({ type: 'action' })
 
-    expect(store.cache.has('action')).toBeTruthy()
-    expect(store.cache.has({ type: 'action' })).toBeTruthy()
+    expect(store.cache.has('action')).toBe(true)
+    expect(store.cache.has({ type: 'action' })).toBe(true)
   })
 
   it('return from cache after first dispatch', async () => {
@@ -129,13 +129,13 @@ describe('store.cache.dispatch', () => {
 
     try {
       const action = store.cache.dispatch('action')
-      expect(store.cache.has('action')).toBeTruthy()
+      expect(store.cache.has('action')).toBe(true)
       await action
     } catch (e) {
       error = e
     }
 
-    expect(store.cache.has('action')).toBeFalsy()
+    expect(store.cache.has('action')).toBe(false)
     expect(error).toEqual(new Error('An unknown error.'))
   })
 
@@ -153,8 +153,8 @@ describe('store.cache.dispatch', () => {
 
     await store.cache.dispatch('A', a)
 
-    expect(wasCalled).toBeTruthy()
-    expect(store.cache.has('A', a)).toBeFalsy()
+    expect(wasCalled).toBe(true)
+    expect(store.cache.has('A', a)).toBe(false)
   })
 
   it('supports modules', async () => {
@@ -171,11 +171,11 @@ describe('store.cache.dispatch', () => {
     })
 
     expect(name).toBe('')
-    expect(store.cache.has('user/rename', '@vitorluizc')).toBeFalsy()
+    expect(store.cache.has('user/rename', '@vitorluizc')).toBe(false)
 
     await store.cache.dispatch('user/rename', '@vitorluizc')
 
     expect(name).toBe('@vitorluizc')
-    expect(store.cache.has('user/rename', '@vitorluizc')).toBeTruthy()
+    expect(store.cache.has('user/rename', '@vitorluizc')).toBe(true)
   })
 })
