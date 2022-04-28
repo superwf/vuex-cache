@@ -34,6 +34,7 @@ const store = new Store({
 
 ### Installation on [Nuxt.js](https://github.com/nuxt/nuxt.js)
 
+#### Global plugin (`~/plugins/vuex-cache.js`)
 > Only use it if you're not using [Classic Mode](https://nuxtjs.org/guide/vuex-store#classic-mode).
 
 Create a module on plugins to setup `vuex-cache`. Call `vuex-cache` with your options, then call returned value with store on `onNuxtReady` event.
@@ -66,6 +67,15 @@ module.exports = {
     { src: '~/plugins/vuex-cache.js', ssr: false },
   ]
 };
+```
+
+#### Global store (`~/store/index.js`)
+```javascript
+import createCache from 'vuex-cache';
+
+export const plugins = [
+    createCache()
+]
 ```
 
 ## Usage
@@ -186,6 +196,19 @@ If using the type parameter, only actions with the specified type are deleted fr
 // store.cache.dispatch('FETCH_REPOSITORIES', { page: 2 });
 store.cache.clear('FETCH_REPOSITORIES');
 //=> 2
+```
+
+### `store.cache.state`
+
+> Warning! Don't use this method in production.
+
+Helper method for debugging. Prints the current value of the cache (state).
+
+```js
+store.cache.dispatch('FETCH_REPOSITORIES', { page: 1 });
+store.cache.dispatch('FETCH_REPOSITORIES', { page: 2 });
+store.cache.state();
+//=> Map(2){...}
 ```
 
 ### `mapCacheActions`

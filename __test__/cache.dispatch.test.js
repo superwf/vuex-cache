@@ -96,12 +96,16 @@ describe('store.cache.dispatch', () => {
     expect(await store.cache.dispatch('action')).toBe(2)
   })
 
-  it("use payload to generate cache's key", async () => {
+  it("use payload to generate cache's key with fake request answers", async () => {
     let _id = 0
     const store = createStore({
       action: () => {
-        _id++
-        return _id
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            _id++
+            resolve(_id)
+          }, 500 - _id * 150)
+        })
       },
     })
 
@@ -135,7 +139,7 @@ describe('store.cache.dispatch', () => {
     expect(error).toEqual(new Error('An unknown error.'))
   })
 
-  it('non JSON parseable just fallback to native dispatch', async () => {
+  it('non JSON parsable just fallback to native dispatch', async () => {
     let wasCalled = false
 
     const store = createStore({
@@ -145,16 +149,15 @@ describe('store.cache.dispatch', () => {
     })
 
     const a = {}
-    const b = { a }
-    a.b = b
+    a.b = { a }
 
     await store.cache.dispatch('A', a)
 
-    expect(wasCalled).toEqual(true)
-    expect(store.cache.has('A', a)).toEqual(false)
+    expect(wasCalled).toBe(true)
+    expect(store.cache.has('A', a)).toBe(false)
   })
 
-  it('it supports modules', async () => {
+  it('supports modules', async () => {
     let name = ''
     const store = createStoreWithModules({
       user: {
