@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 3.5.0
+
+- Upgrade devDependencies.
+- Add method to debug the cache object.
+
+  Thanks to [@rah-emil](https://github.com/rah-emil) for PR [#57](https://github.com/superwf/vuex-cache/pull/57).
+
 ## 3.4.0
 
 - Upgrade devDependencies.
