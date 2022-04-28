@@ -3,7 +3,9 @@
  * @param {any} value
  * @returns {value is Object}
  */
-var isObject = function (value) { return !!value && typeof value === 'object'; };
+var isObject = function (value) {
+  return !!value && typeof value === 'object';
+};
 /**
  * Type alias for Store or ActionContext instances.
  * @typedef {import('vuex').Store<any> | import('vuex').ActionContext<any, any>} Store
@@ -16,7 +18,9 @@ var isObject = function (value) { return !!value && typeof value === 'object'; }
  */
 
 
-var toString = function (value) { return isObject(value) ? JSON.stringify(value) : String(value); };
+var toString = function (value) {
+  return isObject(value) ? JSON.stringify(value) : String(value);
+};
 /**
  * Dispatch's options object.
  * @typedef {import('vuex').DispatchOptions & { timeout: number }} DispatchOptions
@@ -39,7 +43,9 @@ var toString = function (value) { return isObject(value) ? JSON.stringify(value)
  */
 
 
-var resolveParams = function (params) { return isObject(params[0]) ? [params[0].type, params[0], params[1]] : params; };
+var resolveParams = function (params) {
+  return isObject(params[0]) ? [params[0].type, params[0], params[1]] : params;
+};
 
 var GenerateKeyError = new Error("Can't generate key from parameters.");
 /**
@@ -65,7 +71,9 @@ var generateKey = function (params) {
  */
 
 
-var hasTimeout = function (value) { return isObject(value) && typeof value.timeout === 'number'; };
+var hasTimeout = function (value) {
+  return isObject(value) && typeof value.timeout === 'number';
+};
 /**
  * Type alias for options object.
  * @typedef {{ timeout?: number }} Options
@@ -97,7 +105,9 @@ var resolveTimeout = function (params, pluginOptions) {
  */
 
 
-var isExpired = function (expiresIn) { return !!expiresIn && Date.now() > expiresIn; };
+var isExpired = function (expiresIn) {
+  return !!expiresIn && Date.now() > expiresIn;
+};
 /**
  * Cache's state record.
  * @typedef {{ expiresIn?: number, value: Promise<any> }} CacheRecord
@@ -211,6 +221,10 @@ var defineCache = function (store, options) {
       }
 
       return state.delete(key);
+    },
+
+    state: function state$1() {
+      return state;
     }
 
   };
@@ -317,7 +331,7 @@ var mapCacheActions = normalizeNamespace(function (namespace, actions) {
     var val = ref.val;
 
     res[key] = function mappedAction() {
-      var this$1 = this;
+      var this$1$1 = this;
       var args = [], len = arguments.length;
       while ( len-- ) args[ len ] = arguments[ len ];
 
@@ -336,7 +350,7 @@ var mapCacheActions = normalizeNamespace(function (namespace, actions) {
 
           var payload = [], len = arguments.length - 1;
           while ( len-- > 0 ) payload[ len ] = arguments[ len + 1 ];
-          (ref = module.context.cache.dispatch).call.apply(ref, [ this$1.$store.cache, ("" + namespace + type) ].concat( payload ));
+          (ref = module.context.cache.dispatch).call.apply(ref, [ this$1$1.$store.cache, ("" + namespace + type) ].concat( payload ));
         } : module.context.cache.dispatch;
       }
 
@@ -353,5 +367,4 @@ var mapCacheActions = normalizeNamespace(function (namespace, actions) {
 
 var createCache = function (options) { return function (store) { return defineCache(store, options); }; };
 
-export default createCache;
-export { cacheAction, mapCacheActions };
+export { cacheAction, createCache as default, mapCacheActions };

@@ -2,14 +2,16 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.VuexCache = {}));
-}(this, (function (exports) { 'use strict';
+})(this, (function (exports) { 'use strict';
 
   /**
    * Check if value is an object.
    * @param {any} value
    * @returns {value is Object}
    */
-  var isObject = function (value) { return !!value && typeof value === 'object'; };
+  var isObject = function (value) {
+    return !!value && typeof value === 'object';
+  };
   /**
    * Type alias for Store or ActionContext instances.
    * @typedef {import('vuex').Store<any> | import('vuex').ActionContext<any, any>} Store
@@ -22,7 +24,9 @@
    */
 
 
-  var toString = function (value) { return isObject(value) ? JSON.stringify(value) : String(value); };
+  var toString = function (value) {
+    return isObject(value) ? JSON.stringify(value) : String(value);
+  };
   /**
    * Dispatch's options object.
    * @typedef {import('vuex').DispatchOptions & { timeout: number }} DispatchOptions
@@ -45,7 +49,9 @@
    */
 
 
-  var resolveParams = function (params) { return isObject(params[0]) ? [params[0].type, params[0], params[1]] : params; };
+  var resolveParams = function (params) {
+    return isObject(params[0]) ? [params[0].type, params[0], params[1]] : params;
+  };
 
   var GenerateKeyError = new Error("Can't generate key from parameters.");
   /**
@@ -71,7 +77,9 @@
    */
 
 
-  var hasTimeout = function (value) { return isObject(value) && typeof value.timeout === 'number'; };
+  var hasTimeout = function (value) {
+    return isObject(value) && typeof value.timeout === 'number';
+  };
   /**
    * Type alias for options object.
    * @typedef {{ timeout?: number }} Options
@@ -103,7 +111,9 @@
    */
 
 
-  var isExpired = function (expiresIn) { return !!expiresIn && Date.now() > expiresIn; };
+  var isExpired = function (expiresIn) {
+    return !!expiresIn && Date.now() > expiresIn;
+  };
   /**
    * Cache's state record.
    * @typedef {{ expiresIn?: number, value: Promise<any> }} CacheRecord
@@ -217,6 +227,10 @@
         }
 
         return state.delete(key);
+      },
+
+      state: function state$1() {
+        return state;
       }
 
     };
@@ -323,7 +337,7 @@
       var val = ref.val;
 
       res[key] = function mappedAction() {
-        var this$1 = this;
+        var this$1$1 = this;
         var args = [], len = arguments.length;
         while ( len-- ) args[ len ] = arguments[ len ];
 
@@ -342,7 +356,7 @@
 
             var payload = [], len = arguments.length - 1;
             while ( len-- > 0 ) payload[ len ] = arguments[ len + 1 ];
-            (ref = module.context.cache.dispatch).call.apply(ref, [ this$1.$store.cache, ("" + namespace + type) ].concat( payload ));
+            (ref = module.context.cache.dispatch).call.apply(ref, [ this$1$1.$store.cache, ("" + namespace + type) ].concat( payload ));
           } : module.context.cache.dispatch;
         }
 
@@ -360,9 +374,9 @@
   var createCache = function (options) { return function (store) { return defineCache(store, options); }; };
 
   exports.cacheAction = cacheAction;
-  exports.default = createCache;
+  exports["default"] = createCache;
   exports.mapCacheActions = mapCacheActions;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
