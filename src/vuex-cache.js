@@ -203,7 +203,7 @@ const defineCache = (store, options) => {
 
     state() {
       return state
-    }
+    },
   }
 
   Object.defineProperty(store, 'cache', {
@@ -314,12 +314,12 @@ export const mapCacheActions = normalizeNamespace((namespace, actions) => {
         dispatch =
           typeof val === 'function'
             ? (type, ...payload) => {
-              module.context.cache.dispatch.call(
-                this.$store.cache,
-                `${namespace}${type}`,
-                ...payload,
-              )
-            }
+                module.context.cache.dispatch.call(
+                  this.$store.cache,
+                  `${namespace}${type}`,
+                  ...payload,
+                )
+              }
             : module.context.cache.dispatch
       }
 

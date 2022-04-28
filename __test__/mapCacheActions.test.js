@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { mapCacheActions } from '../src/vuex-cache.js';
-import createCache from '../src/vuex-cache.js'
+import createCache, { mapCacheActions } from '../src/vuex-cache.js'
 
 beforeAll(() => {
   Vue.use(Vuex)
@@ -9,21 +8,21 @@ beforeAll(() => {
 
 describe('mapCacheActions', () => {
   it('mapCacheActions (object)', () => {
-    const a = jest.fn();
-    const b = jest.fn();
+    const a = jest.fn()
+    const b = jest.fn()
     const store = new Vuex.Store({
       plugins: [createCache()],
       actions: {
         a,
-        b
-      }
+        b,
+      },
     })
     const vm = new Vue({
       store,
       methods: mapCacheActions({
         foo: 'a',
-        bar: 'b'
-      })
+        bar: 'b',
+      }),
     })
     vm.foo()
     expect(a).toHaveBeenCalled()
@@ -36,15 +35,15 @@ describe('mapCacheActions', () => {
     const a = jest.fn()
     const store = new Vuex.Store({
       plugins: [createCache()],
-      actions: { a }
+      actions: { a },
     })
     const vm = new Vue({
       store,
       methods: mapCacheActions({
-        foo (dispatch, arg) {
+        foo(dispatch, arg) {
           dispatch('a', arg + 'bar')
-        }
-      })
+        },
+      }),
     })
     vm.foo('foo')
     expect(a.mock.calls[0][1]).toBe('foobar')
@@ -60,17 +59,17 @@ describe('mapCacheActions', () => {
           namespaced: true,
           actions: {
             a,
-            b
-          }
-        }
-      }
+            b,
+          },
+        },
+      },
     })
     const vm = new Vue({
       store,
       methods: mapCacheActions('foo/', {
         foo: 'a',
-        bar: 'b'
-      })
+        bar: 'b',
+      }),
     })
     vm.foo()
     expect(a).toHaveBeenCalled()
@@ -86,17 +85,17 @@ describe('mapCacheActions', () => {
       modules: {
         foo: {
           namespaced: true,
-          actions: { a }
-        }
-      }
+          actions: { a },
+        },
+      },
     })
     const vm = new Vue({
       store,
       methods: mapCacheActions('foo/', {
-        foo (dispatch, arg) {
+        foo(dispatch, arg) {
           dispatch('a', arg + 'bar')
-        }
-      })
+        },
+      }),
     })
     vm.foo('foo')
     expect(a.mock.calls[0][1]).toBe('foobar')
